@@ -1,0 +1,364 @@
+@import '_vars-assets';
+@import '_vars-colors';
+@import '_vars-fonts';
+@import '_vars-layout';
+
+$variable-view-height: 128px;
+$point-height: 24px;
+$dot-width: 10px;
+$dot-right-margin: 6px;
+
+@function trace-sprite-region($x, $y){
+  $dot-width: 10px;
+  $line-width: 16px;
+  $icon-height: 24px;
+  $spacing-horiz: 2px;
+  $spacing-vert: 6px;
+
+  $offset-x: 0;
+  $offset-y: 0;
+  
+  @if $y == 0 {
+    $offset-x: $x * ($spacing-horiz + $line-width);
+  } @else {
+    $offset-x: $x * ($spacing-horiz + $dot-width);
+  }
+
+  $offset-y: $y * ($spacing-vert + $icon-height);
+
+  @return (-$offset-x) (-$offset-y)
+};
+
+.field {
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.mp-runtime {
+  display: flex;
+  flex-direction: column;
+
+  .pending {
+    margin: 16px;
+    padding: 0;
+    font-style: italic;
+    font-size: 14px;
+    color: gray;
+  }
+
+  .trace-visualization {
+    margin-top: $layout-control-surface-height;
+    position: relative;
+    flex-grow: 1;
+
+    .scope.top-level > .execution > .point.call.expanded:first-child {
+      &::before,
+      &::after {
+        background: none;
+      }
+    }
+  }
+}
+
+.scope {
+  padding: 0 8px;
+  font-size: 14px;
+  line-height: $point-height;
+  font-family: $font-monospace;
+  cursor: default;
+  user-select: none;
+
+  &.top-level {
+    padding: 8px 0 0 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: scroll;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .func-sig {
+    min-height: $point-height;
+    margin-left: 16px;
+
+    .sig-syntax {
+      margin: 0 4px;
+
+      & + .sig-syntax {
+        margin-left: 0;
+      }
+    }
+
+    .sig-name {
+      // ...
+    }
+
+    .sig-value {
+      color: #881280;
+    }
+  }
+
+  .execution {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    .point {
+      min-height: $point-height;
+
+      .point-radio-button {
+        display: none;
+      }
+
+      label {
+        height: $point-height;
+        display: block;
+        cursor: pointer;
+
+        &::before {
+          content: "";
+          width: $dot-width;
+          height: 24px;
+          margin: 0 $dot-right-margin 0 0;
+          display: block;
+          float: left;
+          background-image: url($assets-trace-sprite-path);
+          background-repeat: no-repeat;
+          overflow: hidden;
+        }
+      }
+
+      &:not(.call) {
+        color: gray;
+      }
+
+      &:not(.expanded):hover {
+        cursor: pointer;
+      }
+    }
+
+    .call {
+      padding-left: 0;
+
+      & > .func-sig {
+        &::before {
+          width: $dot-width;
+          height: 24px;
+          margin: 0 $dot-right-margin 0 0;
+          display: block;
+          float: left;
+          background-image: url($assets-trace-sprite-path);
+          background-repeat: no-repeat;
+          overflow: hidden;
+        }
+      }
+
+      & > .scope {
+        padding-left: 16px;
+        display: none;
+      }
+
+      &.expanded {
+        position: relative;
+
+        &::before,
+        &::after {
+          content: "";
+          width: 16px;
+          height: 24px;
+          display: block;
+          position: absolute;
+          left: 0;
+          background-image: url($assets-trace-sprite-path);
+          overflow: hidden;
+        }
+
+
+        &::before {
+          // top: 24px;
+          top: 0;
+          // line-bend-top
+          // background-position: -16px 0;
+          background-position: trace-sprite-region(1, 0);
+        }
+
+        &::after {
+          bottom: 0;
+          // line-bend-bottom
+          // background-position: -32px 0;
+          background-position: trace-sprite-region(2, 0);
+        }
+
+        &:last-child::after {
+          // line-horiz
+          // background-position: 0 0;
+          background-position: trace-sprite-region(0, 0);
+        }
+       
+        & > .scope {
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+.point {
+  & > label::before {
+    // line-vert
+    background-position: trace-sprite-region(0, 1);
+  }
+
+  & > label:hover::before {
+    // line-vert (hovered)
+    background-position: trace-sprite-region(2, 1);
+  }
+
+  & > input[type="radio"]:checked + label::before {
+    // line-vert-sel
+    background-position: trace-sprite-region(1, 1);
+  }
+
+  &.call.expanded > label::before {
+    // line-top
+    background-position: trace-sprite-region(0, 3);
+  }
+
+  &.call.expanded > label:hover::before {
+    // line-top (hovered)
+    background-position: trace-sprite-region(2, 3);
+  }
+
+  &.call.expanded > input[type="radio"]:checked + label::before {
+    // line-top (hovered)
+    background-position: trace-sprite-region(1, 3);
+  }
+}
+
+.point:first-child {
+  & > label::before {
+    // line-top
+    background-position: trace-sprite-region(0, 1);
+  }
+
+  & > label:hover::before {
+    // line-top (hovered)
+    background-position: trace-sprite-region(2, 1);
+  }
+
+  & > input[type="radio"]:checked + label::before {
+    // line-top-sel
+    background-position: trace-sprite-region(1, 1);
+  }
+}
+
+.point:last-child {
+  & > label::before {
+    // line-bottom
+    background-position: trace-sprite-region(0, 2);
+  }
+
+  & > label:hover::before {
+    // line-bottom (hovered)
+    background-position: trace-sprite-region(2, 2);
+  }
+
+  & > input[type="radio"]:checked + label::before {
+    // line-bottom-sel
+    background-position: trace-sprite-region(1, 2);
+  }
+
+  &.call.expanded > label::before {
+    // line-top
+    background-position: trace-sprite-region(0, 3);
+  }
+
+  &.call.expanded > label:hover::before {
+    // line-top (hovered)
+    background-position: trace-sprite-region(2, 3);
+  }
+
+  &.call.expanded > input[type="radio"]:checked + label::before {
+    // line-top-sel
+    background-position: trace-sprite-region(1, 3);
+  }
+}
+
+.variables {
+  padding: 16px 0;
+  position: relative;
+  border-top: 1px solid $color-gray;
+  font-size: 14px;
+
+  ol {
+    margin: 0;
+    padding: 0 16px;
+    list-style: none;
+    font-family: $font-monospace;
+
+    &:empty::before {
+      content: "no variables in scope";
+      display: block;
+      margin: 16px 0;
+      font-family: $font-sans-serif;
+      font-style: italic;
+      color: gray;
+    }
+
+    
+
+    li + li {
+      margin-top: 4px;
+    }
+
+    .current {
+      min-width: 80px;
+      display: inline-block;
+    }
+
+    .name {
+      color: #8A1893;
+
+      &::after {
+        content: "\0003D";
+        padding: 0 8px;
+      }
+    }
+
+    .value {
+      color: $color-blue;
+    }
+
+    .edit {
+      margin: 0;
+      padding: 0;
+      border-style: none;
+      background: none;
+      font-size: inherit;
+      font-family: inherit;
+      color: $color-blue;
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .action-button {
+    margin-top: 8px;
+    margin-right: 16px;
+    float: right;
+
+    & + .action-button {
+      margin-right: 8px;
+    }
+  }
+}

@@ -1,0 +1,47 @@
+@import '_vars-assets';
+@import '_vars-fonts';
+@import '_vars-colors';
+
+.CodeMirror {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  font-family: $font-monospace;
+  font-size: 13px;
+  cursor: text;
+
+  .CodeMirror-selected {
+    background-color: $color-editor-selection;
+  }
+
+  .CodeMirror-lines {
+    padding: 12px 0;
+
+    .CodeMirror-line {
+      height: 20px;
+      line-height: 20px;
+    }
+  }
+
+  .CodeMirror-linenumber {
+    padding-right: 8px;
+    font-size: 10px;
+    line-height: 19px;
+  }
+
+  .CodeMirror-gutter-wrapper.active-line .CodeMirror-linenumber {
+    color: white;
+  }
+
+  .CodeMirror-gutter-background.active-line {
+    background-color: #00f;
+  }
+
+  .CodeMirror-linebackground.active-line {
+    background-image: url($assets-line-arrow-path);
+    background-repeat: no-repeat;
+    background-position: left center;
+  }
+}

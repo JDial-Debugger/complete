@@ -1,0 +1,93 @@
+@import '_vars-colors';
+@import '_vars-layout';
+
+$call-row-height: 28px;
+$pip-dimension: 12px;
+$call-row-border-width: 1px;
+
+.waveform-container {
+    position: absolute;
+    top: $layout-control-surface-height;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    overflow: hidden;
+}
+
+.call-stack {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    line-height: $call-row-height;
+    font-family: $font-monospace;
+
+    .call {
+        height: $call-row-height + 1;
+        padding-left: 16px;
+        padding-right: 16px;
+        background-image: url($assets-underline-path);
+
+        &.current {
+            font-weight: bold;
+            color: $color-blue;
+        }
+    }
+}
+
+.trace-scroller {
+    margin: 0;
+    padding: 0;
+    flex-grow: 1;
+    overflow-x: scroll;
+}
+
+.trace-pips {
+    white-space: nowrap;
+    background-image: url($assets-underline-path);
+
+    @for $d from 1 to 10 {
+        &[data-max-depth="#{$d}"] {
+            height: ($call-row-height + $call-row-border-width) * $d;
+        }
+    }
+
+    .pip {
+        width: $pip-dimension;
+        height: 100%;
+        padding: 0 2px;
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+
+        &:hover .dot {
+            background-color: lighten($color-blue, 25%);
+        }
+
+        &.current .dot {
+            background-color: $color-blue;
+        }
+
+        .dot {
+            width: $pip-dimension;
+            height: $pip-dimension;
+            position: absolute;
+            border-radius: 50%;
+            background-color: $color-gray;
+        }
+
+        @for $d from 1 through 10 {
+            $offset: ($call-row-height - $pip-dimension) / 2;
+            $variable: (($d - 1) * ($call-row-height + $call-row-border-width));
+
+            &[data-depth="#{$d}"] .dot {
+                top: $variable + $offset;
+            }
+        }
+
+        &.current-point .dot {
+            background-color: $color-blue;
+        }
+    }
+}

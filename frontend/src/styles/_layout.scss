@@ -1,0 +1,52 @@
+@import '_vars-layout';
+
+$shorten-speed: 0.3s;
+
+.mp-workspace {
+  position: absolute;
+  top: $layout-control-surface-height + 16px;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  overflow: hidden;
+
+  .mp-upper-wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 16px;
+    right: 8px;
+    left: 8px;
+    transition: bottom $shorten-speed;
+
+    &.shortened {
+      bottom: $layout-waveform-height + (2 * 16px);
+
+      & + .mp-lower-wrapper {
+        bottom: 16px;
+      }
+    }
+
+    .mp-editor {
+      width: $layout-editor-width;
+      position: absolute;
+      top: 0;
+      left: -8px;
+    }
+
+    .mp-runtime {
+      width: $layout-runtime-width;
+      position: absolute;
+      top: 0;
+      right: -8px;
+    }
+  }
+
+  .mp-lower-wrapper {
+    height: $layout-waveform-height;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -$layout-waveform-height;
+    transition: bottom $shorten-speed;
+  }
+}

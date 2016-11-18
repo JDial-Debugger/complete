@@ -1,0 +1,42 @@
+@import '_vars-colors';
+@import '_vars-fonts';
+
+.action-button {
+  padding: 4px 8px;
+  border-style: none;
+  border-radius: 3px;
+  font-weight: 500;
+  font-size: 13px;
+  font-family: $font-sans-serif;
+  cursor: pointer;
+
+  &:focus,
+  &:active {
+    outline: none;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  & + .action-button {
+    margin-left: 8px;
+  }
+
+  $button-types: ("fatal", "alert", "info", "success");
+  $bg-colors: ($color-bg-fatal, $color-bg-alert, $color-bg-info, $color-bg-success);
+
+  @each $current-type in $button-types {
+    $n:  index($button-types, $current-type);
+    $bg: nth($bg-colors, $n);
+
+    &.#{$current-type} {
+      color: white;
+      background-color: $bg;
+
+      &:active {
+        background-color: darken($bg, 10%);
+      }
+    }
+  }
+}

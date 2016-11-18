@@ -1,0 +1,112 @@
+@import '_vars-colors';
+@import '_vars-layout';
+@import '_vars-assets';
+
+$sprite-grid-unit: 18px;
+
+@function sprite-region($x, $y){
+  @return ($x * (-1 * $sprite-grid-unit)) ($y * (-1 * $sprite-grid-unit))
+};
+
+.control-surface {
+  width: 100%;
+  height: $layout-control-surface-height;
+  background-color: $color-dark-gray;
+  cursor: default;
+
+  .dropdown {
+    margin: 23px 12px;
+    display: block;
+    float: right;
+  }
+}
+
+.mp-panel-bordered > .control-surface {
+  width: auto;
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+}
+
+.mp-control-button {
+  height: 40px;
+  margin: 12px 16px;
+  padding: 0 36px 0 8px;
+  background: none;
+  border-style: none;
+  font-size: 14px;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
+  cursor: pointer;
+
+  &.no-text {
+    padding-right: 8px;
+  }
+
+  &.align-right {
+    float: right;
+    padding-right: 8px;
+  }
+
+  &:hover {
+    color: white;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled {
+    color: lighten($color-dark-gray, 30%);
+    cursor: default;
+  }
+
+  &::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    margin: 0 8px 0 0;
+    float: left;
+    background-image: url($assets-sprite-path);
+    background-size:
+      ($assets-sprite-horiz-icons * $sprite-grid-unit)
+      ($assets-sprite-vert-icons * $sprite-grid-unit);
+  }
+
+  &[data-command="trace"]::before {                  background-position: sprite-region(3, 1); }
+  &[data-command="trace"]:disabled::before {         background-position: sprite-region(3, 3); }
+  &[data-command="halt"]::before {                   background-position: sprite-region(7, 1); }
+  &[data-command="halt"]:disabled::before {          background-position: sprite-region(7, 3); }
+  &[data-command="reset"]::before {                  background-position: sprite-region(5, 1); }
+  &[data-command="reset"]:disabled::before {         background-position: sprite-region(5, 3); }
+  &[data-command="jump-start"]::before {             background-position: sprite-region(6, 0); }
+  &[data-command="jump-start"]:disabled::before {    background-position: sprite-region(6, 2); }
+  &[data-command="step-forward"]::before {           background-position: sprite-region(1, 1); }
+  &[data-command="step-forward"]:disabled::before {  background-position: sprite-region(1, 3); }
+  &[data-command="step-backward"]::before {          background-position: sprite-region(4, 1); }
+  &[data-command="step-backward"]:disabled::before { background-position: sprite-region(4, 3); }
+  &[data-command="jump-end"]::before {               background-position: sprite-region(5, 0); }
+  &[data-command="jump-end"]:disabled::before {      background-position: sprite-region(5, 2); }
+
+  &[data-command].icon-spinning::before {
+    content: "";
+    background-position: sprite-region(6, 1);
+    animation: icon-spinning 0.5s infinite steps(8);
+  }
+
+  &[data-command].icon-spinning:disabled::before {
+    background-position: sprite-region(6, 1);
+  }
+}
+
+@keyframes icon-spinning {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(359deg);
+  }
+}

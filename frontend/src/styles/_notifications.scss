@@ -1,0 +1,208 @@
+@import '_vars-colors';
+@import '_vars-fonts';
+@import '_vars-layout';
+
+$max-notif-height: 300px;
+$notif-gap: 6px;
+
+.notif-bucket {
+  position: absolute;
+  top: $layout-control-surface-height + 8px;
+  right: 8px;
+  z-index: 1000;
+}
+
+.notif {
+  width: 256px;
+  max-height: $max-notif-height;
+  margin-bottom: $notif-gap;
+  position: relative;
+  float: right;
+  clear: both;
+  font-family: $font-sans-serif;
+  font-size: 14px;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 6px $color-dark-gray;
+
+  // notification entrance animation
+  animation: notif-show 0.16s cubic-bezier(0.175, 0.885, 0.32, 1.27499);
+
+  // fill space between notifiactions to prevent click throughs
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -$notif-gap;
+    height: $notif-gap;
+  }
+
+  &.close { 
+    animation: notif-hide   .12s      cubic-bezier(.34,.07,1,     .2),
+               notif-shrink .24s .12s cubic-bezier(.165, .840, .440, 1.000);
+    animation-fill-mode: forwards;
+  }
+
+  &.large {
+    width: 384px;
+  }
+
+  $tag-width: 40px;
+
+  .tag {
+    width: $tag-width;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+
+    &::before {
+      display: block;
+      margin: 12px ($tag-width - 20px) / 2;
+      font-weight: 100;
+      font-family: "Black Tie";
+      font-size: 20px;
+    }
+  }
+
+  &.fatal   .tag::before { content: ""; } // circle with "!"
+  &.alert   .tag::before { content: ""; } // circle with "!"
+  &.info    .tag::before { content: ""; } // circle with "i"
+  &.success .tag::before { content: ""; } // circle with check mark
+
+  .dismiss {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: none;
+    border-style: none;
+    font-family: "Black Tie";
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .content {
+    margin: 0 0 0 $tag-width;
+    padding: 12px 0;
+  }
+
+  .title {
+    margin: 0;
+    padding: 0 16px;
+  }
+
+  code {
+    margin: 12px 0;
+    padding: 8px 16px 6px;
+    display: block;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    line-height: 24px;
+    font-family: $font-monospace;
+  }
+
+  .details {
+    margin: 0 0 4px;
+    padding: 0 16px;
+    font-size: 13px;
+  }
+
+  button.action {
+    padding: 4px 8px;
+    margin: 4px 0 0 16px;
+    border-style: none;
+    background: none;
+    font-weight: 500;
+    font-size: 13px;
+    font-family: inherit;
+    border-radius: 3px;
+    cursor: pointer;
+
+    &:focus,
+    &:active {
+      outline: none;
+    }
+
+    & + button.action {
+      margin-left: 8px;
+    }
+  }
+
+  // Generate colors for each type of alert
+  $notif-types: ("fatal", "alert", "info", "success");
+  $notif-bg-colors: ($color-bg-fatal, $color-bg-alert, $color-bg-info, $color-bg-success);
+  $notif-text-colors: ($color-text-fatal, $color-text-alert, $color-text-info, $color-text-success);
+
+  @each $current-type in $notif-types {
+    $n:    index($notif-types, $current-type);
+    $bg:   nth($notif-bg-colors, $n);
+    $text: nth($notif-text-colors, $n);
+
+    &.#{$current-type} {
+      color: $text;
+      background-color: lighten($bg, 25%);
+
+      .tag {
+        background-color: $bg;
+
+        &::before {
+          color: lighten($bg, 30%);
+        }
+      }
+
+      .dismiss {
+        color: darken($bg, 10%);
+
+        &:active {
+          color: darken($bg, 50%);
+        }
+      }
+
+      code {
+        background-color: desaturate(lighten($bg, 35%), 5%);
+      }
+
+      button.action {
+        color: white;
+        background-color: $bg;
+
+        &:active {
+          background-color: darken($bg, 10%);
+        }
+      }
+    }
+  }
+}
+
+@keyframes notif-show {
+    0% { opacity: 0; transform: perspective($max-notif-height) translate(0, -30px) rotateX(90deg); }
+  100% { opacity: 1; transform: perspective($max-notif-height) translate(0,     0) rotateX( 0deg); }
+}
+
+@keyframes notif-hide {
+    0% { opacity: 1; transform: scale( 1); }
+  100% { opacity: 0; transform: scale(.8); }
+}
+
+@keyframes notif-shrink {
+    0% { max-height: 400px; }
+  100% { max-height: 0;     }
+}
+
+@keyframes notif-shake {
+    0% { transform: translateX(   0); }
+    2% { transform: translateX(-4px); }
+    4% { transform: translateX( 8px); }
+    6% { transform: translateX(-4px); }
+    8% { transform: translateX(   0); }
+  100% { transform: translateX(   0); }
+}

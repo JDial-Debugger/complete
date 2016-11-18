@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="/public/libs/codemirror.css">
+    <link rel="stylesheet" href="/public/libs/neat.css">
+    <link rel="stylesheet" href="/public/style.css">
+</head>
+
+<body>
+    <div class="app">
+        <div class="mp-controls control-surface">
+            <button class="mp-control-button" data-command="trace">Run</button>
+            <button class="mp-control-button" data-command="halt" disabled>Halt</button>
+            <select class="dropdown">
+                <option value="tests" selected>Testing Program</option>
+                <option value="hello">Hello World</option>
+                <option value="custom">Custom</option>
+            </select>
+            <button class="mp-control-button align-right" data-command="reset">Reset</button>
+        </div>
+        <div class="notif-bucket"></div>
+        <div class="mp-workspace">
+            <div class="mp-upper-wrapper">
+                <div class="mp-editor mp-panel-bordered">
+                    <div class="mp-panel-description">Editor</div>
+                </div>
+                <div class="mp-runtime mp-panel-bordered">
+                    <div class="control-surface">
+                        <button class="mp-control-button no-text" data-command="jump-start" disabled title="Jump to Start"></button>
+                        <button class="mp-control-button no-text" data-command="step-backward" disabled title="Next Step"></button>
+                        <button class="mp-control-button no-text" data-command="step-forward" disabled title="Previous Step"></button>
+                        <button class="mp-control-button no-text" data-command="jump-end" disabled title="Jump to End"></button>
+                    </div>
+                    <!-- <div class="mp-panel-description">Runtime</div> -->
+                    <div class="trace-visualization"></div>
+                    <div class="variables edit">
+                        <div class="mp-panel-description">Variables</div>
+                        <div class="variables-wrapper"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/public/libs/jquery.js"></script>
+    <script src="/public/libs/codemirror.js"></script>
+    <script src="/public/libs/clike.js"></script>
+    <script src="/public/libs/localforage.js"></script>
+    <script src="/public/libs/superagent.js"></script>
+    <script src="/public/client.js"></script>
+</body>
+
+</html>

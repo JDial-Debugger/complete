@@ -1,0 +1,46 @@
+{
+  "name": "jdial-frontend",
+  "version": "0.1.0",
+  "author": "Isaac Evavold <isaacevavold@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "gulp main"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^7.1.0",
+    "babel-loader": "^6.2.7",
+    "babel-polyfill": "^6.16.0",
+    "babel-preset-latest": "^6.16.0",
+    "del": "^2.2.2",
+    "eslint": "^3.10.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-eslint": "^3.0.1",
+    "gulp-sass": "^2.3.2",
+    "gulp-standard": "^8.0.2",
+    "webpack-stream": "^3.2.0"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "globals": [
+      "CodeMirror",
+      "EventListener",
+      "ExecPoint",
+      "StackFrame",
+      "Trace",
+      "jQuery",
+      "localforage",
+      "superagent"
+    ],
+    "ignore": [
+      "src/scripts/vendor/*.js",
+      "src/scripts/decls/*.js"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "latest"
+    ]
+  }
+}
