@@ -2,14 +2,16 @@
 
 ## Installation
 
-1. Download & unzip `jdial.zip`
-2. In the newly unpacked `jdial` directory, there are a few items of note
+1. `git clone https://github.com/isaacev/jdial-webapp.git`
+2. In the top-level `jdial` directory, there are a few items of note
   - `frontend/` contains all JS, HTML, CSS code for rendering the web app
   - `backend/` contains server-side Java logic for creating a program trace and making source code suggestions
   - `server.go` is the Go source code for a basic HTTP server for serving the web app. The `./server` binary is that source code compiled for Linux AMD 64 machines. `boot.sh` will run the server binary with the proper ENV variables
 3. **On a local Linux AMD 64 machine** boot the web server by running:
 
-  $ sh boot.sh
+```bash
+sh boot.sh
+```
 
 4. **Navigate to `http://localhost:3000`** and you should see the app's frontend
 
