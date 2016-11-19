@@ -47,6 +47,7 @@ class AppView {
         }
 
         this.mcs.stopSpinning('trace')
+        this.mcs.enableCommands(['debug'])
 
         // Display appropriate notifications if there was an error or
         // the given trace was well-formed but contains a runtime error
@@ -90,11 +91,22 @@ class AppView {
 
     const haltAction = () => {
       this.mcs.enableCommands(['trace'])
-      this.mcs.disableCommands(['halt'])
+      this.mcs.disableCommands(['halt', 'debug'])
       this.rtv.clear()
       this.edv.unfreeze()
       this.requestCancelled = true
       this.mcs.stopSpinning('trace')
+    }
+
+    const debugAction = () => {
+      let popup = jQuery('<div id="debug-popup"></div>')
+      jQuery('body').append(popup)
+
+      let textarea1 = jQuery(`<textarea>${JSON.stringify(window.parsedTrace, null, '  ')}</textarea>`)
+      let textarea2 = jQuery(`<textarea>${JSON.stringify(window.moddedPoint, null, '  ')}</textarea>`)
+
+      popup.append(textarea1)
+      popup.append(textarea2)
     }
 
     const resetAction = () => {
@@ -128,6 +140,7 @@ class AppView {
 
     this.mcs.on('trace', traceAction)
     this.mcs.on('halt', haltAction)
+    this.mcs.on('debug', debugAction)
     this.mcs.on('reset', resetAction)
     this.mcs.on('dropdown', dropdownAction)
 

@@ -7,3 +7,22 @@
 @import '_runtime-2';
 @import '_waveform';
 @import '_notifications';
+
+#debug-popup {
+  padding: 25px;
+  position: fixed;
+  top: 100px;
+  bottom: 100px;
+  left: 100px;
+  right: 100px;
+  background-color: white;
+  z-index: 1000;
+  box-shadow: 0 0 64px black;
+
+  textarea {
+    width: 512px;
+    height: 256px;
+    display: block;
+    font-family: monospace;
+  }
+}

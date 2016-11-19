@@ -129,6 +129,7 @@
 	          }
 	
 	          _this.mcs.stopSpinning('trace');
+	          _this.mcs.enableCommands(['debug']);
 	
 	          // Display appropriate notifications if there was an error or
 	          // the given trace was well-formed but contains a runtime error
@@ -170,11 +171,22 @@
 	
 	      var haltAction = function haltAction() {
 	        _this.mcs.enableCommands(['trace']);
-	        _this.mcs.disableCommands(['halt']);
+	        _this.mcs.disableCommands(['halt', 'debug']);
 	        _this.rtv.clear();
 	        _this.edv.unfreeze();
 	        _this.requestCancelled = true;
 	        _this.mcs.stopSpinning('trace');
+	      };
+	
+	      var debugAction = function debugAction() {
+	        var popup = jQuery('<div id="debug-popup"></div>');
+	        jQuery('body').append(popup);
+	
+	        var textarea1 = jQuery('<textarea>' + JSON.stringify(window.parsedTrace, null, '  ') + '</textarea>');
+	        var textarea2 = jQuery('<textarea>' + JSON.stringify(window.moddedPoint, null, '  ') + '</textarea>');
+	
+	        popup.append(textarea1);
+	        popup.append(textarea2);
 	      };
 	
 	      var resetAction = function resetAction() {
@@ -211,6 +223,7 @@
 	
 	      this.mcs.on('trace', traceAction);
 	      this.mcs.on('halt', haltAction);
+	      this.mcs.on('debug', debugAction);
 	      this.mcs.on('reset', resetAction);
 	      this.mcs.on('dropdown', dropdownAction);
 	
@@ -788,6 +801,7 @@
 	
 	          try {
 	            parsedTrace = JSON.parse(res.text);
+	            window.parsedTrace = parsedTrace;
 	          } catch (err) {
 	            ajaxFail();
 	          }
@@ -1528,17 +1542,48 @@
 	  }, {
 	    key: 'initializeVariableView',
 	    value: function initializeVariableView() {
+	      var _this3 = this;
+	
 	      if (this.rendered === true) {
 	        var variableListHtml = '<ol></ol>';
-	        var suggestBtnHtml = '<button class="action-button success" disabled>Get suggestions</button>';
-	        var cancelBtnHtml = '<button class="action-button" disabled>Cancel</button>';
-	        this.variablesElem.html(variableListHtml + suggestBtnHtml + cancelBtnHtml);
+	        var suggestBtnHtml = '<button class="action-button success">Get suggestions</button>';
+	        // let cancelBtnHtml = '<button class="action-button">Cancel</button>'
+	        this.variablesElem.html(variableListHtml + suggestBtnHtml);
+	
+	        this.variablesElem.find('.action-button.success').on('click', function (event) {
+	          var list = _this3.variablesElem.find('ol li');
+	          var varnames = [];
+	
+	          if (list.length > 0) {
+	            var goals = list.toArray().filter(function (li) {
+	              return jQuery(li).find('.edit').val() !== '';
+	            }).map(function (li) {
+	              var name = jQuery(li).find('.name').text();
+	              varnames.push(name);
+	              return {
+	                name: name,
+	                oldValue: parseInt(jQuery(li).find('.value').text()),
+	                newValue: parseInt(jQuery(li).find('.edit').val())
+	              };
+	            });
+	
+	            var pointClone = JSON.parse(JSON.stringify(_this3.trace[_this3.index]));
+	
+	            pointClone['stack_to_render'][0]['ordered_varnames'] = varnames;
+	            pointClone['stack_to_render'][0]['encoded_locals'] = goals.reduce(function (map, goal) {
+	              map[goal.name] = goal.newValue;
+	              return map;
+	            }, {});
+	
+	            window.moddedPoint = pointClone;
+	          }
+	        });
 	      }
 	    }
 	  }, {
 	    key: 'setVisibleScope',
 	    value: function setVisibleScope(index) {
-	      var _this3 = this;
+	      var _this4 = this;
 	
 	      if (this.rendered === true) {
 	        if (index >= this.trace.length || index < 0) {
@@ -1568,7 +1613,7 @@
 	              })]);
 	            }, '');
 	
-	            _this3.variablesElem.find('ol').html(variablesHtml);
+	            _this4.variablesElem.find('ol').html(variablesHtml);
 	          })();
 	        }
 	      }

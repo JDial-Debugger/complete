@@ -70,6 +70,10 @@ body {
     background-position: -126px -18px; }
   .mp-control-button[data-command="halt"]:disabled::before {
     background-position: -126px -54px; }
+  .mp-control-button[data-command="debug"]::before {
+    background-position: -18px 0px; }
+  .mp-control-button[data-command="debug"]:disabled::before {
+    background-position: -18px -36px; }
   .mp-control-button[data-command="reset"]::before {
     background-position: -90px -18px; }
   .mp-control-button[data-command="reset"]:disabled::before {
@@ -102,6 +106,7 @@ body {
     transform: rotate(0deg); }
   100% {
     transform: rotate(359deg); } }
+
 .action-button {
   padding: 4px 8px;
   border-style: none;
@@ -327,34 +332,46 @@ body {
 
 .point > label::before {
   background-position: 0px -30px; }
+
 .point > label:hover::before {
   background-position: -24px -30px; }
+
 .point > input[type="radio"]:checked + label::before {
   background-position: -12px -30px; }
+
 .point.call.expanded > label::before {
   background-position: 0px -90px; }
+
 .point.call.expanded > label:hover::before {
   background-position: -24px -90px; }
+
 .point.call.expanded > input[type="radio"]:checked + label::before {
   background-position: -12px -90px; }
 
 .point:first-child > label::before {
   background-position: 0px -30px; }
+
 .point:first-child > label:hover::before {
   background-position: -24px -30px; }
+
 .point:first-child > input[type="radio"]:checked + label::before {
   background-position: -12px -30px; }
 
 .point:last-child > label::before {
   background-position: 0px -60px; }
+
 .point:last-child > label:hover::before {
   background-position: -24px -60px; }
+
 .point:last-child > input[type="radio"]:checked + label::before {
   background-position: -12px -60px; }
+
 .point:last-child.call.expanded > label::before {
   background-position: 0px -90px; }
+
 .point:last-child.call.expanded > label:hover::before {
   background-position: -24px -90px; }
+
 .point:last-child.call.expanded > input[type="radio"]:checked + label::before {
   background-position: -12px -90px; }
 
@@ -674,6 +691,7 @@ body {
   100% {
     opacity: 1;
     transform: perspective(300px) translate(0, 0) rotateX(0deg); } }
+
 @keyframes notif-hide {
   0% {
     opacity: 1;
@@ -681,11 +699,13 @@ body {
   100% {
     opacity: 0;
     transform: scale(0.8); } }
+
 @keyframes notif-shrink {
   0% {
     max-height: 400px; }
   100% {
     max-height: 0; } }
+
 @keyframes notif-shake {
   0% {
     transform: translateX(0); }
@@ -700,4 +720,18 @@ body {
   100% {
     transform: translateX(0); } }
 
-/*# sourceMappingURL=style.css.map */
+#debug-popup {
+  padding: 25px;
+  position: fixed;
+  top: 100px;
+  bottom: 100px;
+  left: 100px;
+  right: 100px;
+  background-color: white;
+  z-index: 1000;
+  box-shadow: 0 0 64px black; }
+  #debug-popup textarea {
+    width: 512px;
+    height: 256px;
+    display: block;
+    font-family: monospace; }

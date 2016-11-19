@@ -301,9 +301,38 @@ class RuntimeView extends EventHandler {
   initializeVariableView () {
     if (this.rendered === true) {
       let variableListHtml = '<ol></ol>'
-      let suggestBtnHtml = '<button class="action-button success" disabled>Get suggestions</button>'
-      let cancelBtnHtml = '<button class="action-button" disabled>Cancel</button>'
-      this.variablesElem.html(variableListHtml + suggestBtnHtml + cancelBtnHtml)
+      let suggestBtnHtml = '<button class="action-button success">Get suggestions</button>'
+      // let cancelBtnHtml = '<button class="action-button">Cancel</button>'
+      this.variablesElem.html(variableListHtml + suggestBtnHtml)
+
+      this.variablesElem.find('.action-button.success').on('click', (event) => {
+        let list = this.variablesElem.find('ol li')
+        let varnames = []
+
+        if (list.length > 0) {
+          let goals = list.toArray().filter((li) => {
+            return jQuery(li).find('.edit').val() !== ''
+          }).map((li) => {
+            let name = jQuery(li).find('.name').text()
+            varnames.push(name)
+            return {
+              name: name,
+              oldValue: parseInt(jQuery(li).find('.value').text()),
+              newValue: parseInt(jQuery(li).find('.edit').val())
+            }
+          })
+
+          let pointClone = JSON.parse(JSON.stringify(this.trace[this.index]))
+
+          pointClone['stack_to_render'][0]['ordered_varnames'] = varnames
+          pointClone['stack_to_render'][0]['encoded_locals'] = goals.reduce((map, goal) => {
+            map[goal.name] = goal.newValue
+            return map
+          }, {})
+
+          window.moddedPoint = pointClone
+        }
+      })
     }
   }
 

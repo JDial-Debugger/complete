@@ -79,6 +79,8 @@ $sprite-grid-unit: 18px;
   &[data-command="trace"]:disabled::before {         background-position: sprite-region(3, 3); }
   &[data-command="halt"]::before {                   background-position: sprite-region(7, 1); }
   &[data-command="halt"]:disabled::before {          background-position: sprite-region(7, 3); }
+  &[data-command="debug"]::before {                  background-position: sprite-region(1, 0); }
+  &[data-command="debug"]:disabled::before {         background-position: sprite-region(1, 2); }
   &[data-command="reset"]::before {                  background-position: sprite-region(5, 1); }
   &[data-command="reset"]:disabled::before {         background-position: sprite-region(5, 3); }
   &[data-command="jump-start"]::before {             background-position: sprite-region(6, 0); }
