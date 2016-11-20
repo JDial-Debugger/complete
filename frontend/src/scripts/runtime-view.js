@@ -10,7 +10,12 @@ class RuntimeView extends EventHandler {
 
     // Attach events to the RuntimeView's control surface
     this.cs = new ControlSurface(wrapperElem.find('.control-surface'))
-    this.cs.disableCommands(['step-backward', 'step-forward'])
+    this.cs.disableCommands([
+      'step-backward',
+      'step-forward',
+      'jump-start',
+      'jump-end'
+    ])
 
     // Listen for clicks to the step-backward button on the control surface to
     // move the trace's execution point backward by 1. If the user is already at
@@ -27,6 +32,18 @@ class RuntimeView extends EventHandler {
     this.cs.on('step-forward', () => {
       if (this.rendered === true && this.index + 1 < this.trace.length) {
         this.setVisiblePoint(this.index + 1)
+      }
+    })
+
+    this.cs.on('jump-start', () => {
+      if (this.rendered === true && this.trace.length > 1) {
+        this.setVisiblePoint(0)
+      }
+    })
+
+    this.cs.on('jump-end', () => {
+      if (this.rendered === true && this.trace.length > 1) {
+        this.setVisiblePoint(this.trace.length - 1)
       }
     })
 
@@ -251,7 +268,12 @@ class RuntimeView extends EventHandler {
     this.setVisiblePoint(0)
 
     // Enable forward, backward navigation buttons
-    this.cs.enableCommands(['step-backward', 'step-forward'])
+    this.cs.enableCommands([
+      'step-backward',
+      'step-forward',
+      'jump-start',
+      'jump-end'
+    ])
   }
 
   showPendingMessage () {
@@ -270,7 +292,12 @@ class RuntimeView extends EventHandler {
     this.index = 0
 
     // Disable commands since there's not data to manipulate
-    this.cs.disableCommands(['step-backward', 'step-forward'])
+    this.cs.disableCommands([
+      'step-backward',
+      'step-forward',
+      'jump-start',
+      'jump-end'
+    ])
 
     // Replace any HTML embedded in the trace or variable views with
     // a basic "pending" message
