@@ -51,6 +51,8 @@ class EventHandler {
 
     // Call each event listener with the given payload
     this.events[name].forEach((listener) => {
+      // FIXME: an error thrown by one listener shouldn't prevent subsequent
+      // listeners from running
       listener.apply({}, payload)
     })
   }

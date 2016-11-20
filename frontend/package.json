@@ -35,7 +35,7 @@
     "dist": "dist",
     "scripts": {
       "all": "src/scripts/**/*.js",
-      "main": "src/scripts/client/app-view.js",
+      "main": "src/scripts/app-view.js",
       "bundle": "app.min.js"
     },
     "styles": {

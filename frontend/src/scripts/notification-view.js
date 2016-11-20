@@ -122,8 +122,13 @@ class Notification extends EventHandler {
     let elem = jQuery(html)
 
     elem.find('button.dismiss').on('click', () => {
-      this.trigger('dismiss', [])
-      this.close()
+      try {
+        // Ensure that even if an error within the trigger method
+        // throws an error, the notification will still close
+        this.trigger('dismiss', [])
+      } finally {
+        this.close()
+      }
     })
 
     elem.find('button[data-command]').on('click', (event) => {
@@ -132,7 +137,13 @@ class Notification extends EventHandler {
       let command = btn.attr('data-command')
 
       if (typeof command === 'string') {
-        this.trigger(command, [])
+        try {
+          // Ensure that even if an error within the trigger method
+          // throws an error, the notification will still close
+          this.trigger(command, [])
+        } finally {
+          this.close()
+        }
       }
     })
 
