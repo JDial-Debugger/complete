@@ -1,3 +1,4 @@
+.vagrant
 frontend/node_modules
 frontend/.sass-cache
 backend/suggest
