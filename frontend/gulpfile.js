@@ -1,5 +1,6 @@
 // Node modules
 const path = require('path')
+const fs = require('fs')
 
 // NPM modules
 const gulp = require('gulp')
@@ -7,6 +8,7 @@ const del = require('del')
 const sass = require('gulp-sass')
 const cleanCSS = require('gulp-clean-css')
 const standard = require('gulp-standard')
+const concat = require('gulp-concat')
 const rollup = require('gulp-rollup')
 const babel = require('rollup-plugin-babel')
 const rename = require('gulp-rename')
@@ -29,6 +31,34 @@ gulp.task('clean', () => {
  *  - Checking that JS source files comply with the Standard JS rules
  *  - JS (ES6) -> JS (ES5)
  */
+
+// Concatenate & minify all the vendor CSS stylesheets. All vendor modules are
+// loaded via NPM and the paths to the particular browser-targeted files are
+// described in this module's package.json
+gulp.task('build-vendor-styles', () => {
+  let components = pkg.paths.styles.components || {}
+
+  // Gather a list of vendor JS files from package.json
+  let src = Object.keys(components)
+    .map((name) => {
+      let filepath = path.join('node_modules', components[name])
+
+      // Throws an error if a vendor's file doesn't exist
+      try {
+        fs.statSync(filepath)
+      } catch (err) {
+        console.error(err.toString())
+      }
+
+      return filepath
+    })
+
+  return gulp
+    .src(src)
+    .pipe(concat(pkg.paths.styles.vendors))
+    .pipe(cleanCSS())
+    .pipe(gulp.dest(pkg.paths.dist))
+})
 
 // Build CSS from the app's SCSS stylesheets. Store the result in `./dist`
 gulp.task('styles', () => {
@@ -54,6 +84,37 @@ gulp.task('lint', () => {
       breakOnError: true,
       quiet: true
     }))
+})
+
+// Concatenate & minify all the vendor JS scripts. All vendor modules are loaded
+// via NPM and the paths to the particular browser-targeted files are described
+// in this module's package.json
+gulp.task('build-vendor-scripts', () => {
+  let components = pkg.paths.scripts.components || {}
+
+  // Gather a list of vendor JS files from package.json
+  let src = Object.keys(components)
+    .map((name) => {
+      let filepath = path.join('node_modules', components[name])
+
+      // Throws an error if a vendor's file doesn't exist
+      try {
+        fs.statSync(filepath)
+      } catch (err) {
+        console.error(err.toString())
+      }
+
+      return filepath
+    })
+
+  return gulp
+    .src(src)
+    .pipe(minify({
+      ext: '.min.js',
+      noSource: true
+    }))
+    .pipe(concat(pkg.paths.scripts.vendors))
+    .pipe(gulp.dest(pkg.paths.dist))
 })
 
 // Build a single, large JS file for the web app from smaller JS files. The
@@ -88,8 +149,11 @@ gulp.task('scripts', () => {
     .pipe(gulp.dest('./dist'))
 })
 
+// A combined task for compiling JS and CSS vendor files
+gulp.task('vendors', ['build-vendor-styles', 'build-vendor-scripts'])
+
 // A combined task for compiling both JS and CSS
-gulp.task('build', ['styles', 'scripts'])
+gulp.task('build', ['styles', 'vendors', 'scripts'])
 
 /**
  * WATCH TASKS

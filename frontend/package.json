@@ -6,7 +6,13 @@
   "scripts": {
     "start": "gulp main"
   },
-  "dependencies": {},
+  "dependencies": {
+    "codemirror": "^5.20.2",
+    "jquery": "^3.1.1",
+    "localforage": "^1.4.3",
+    "mousetrap": "^1.6.0",
+    "superagent": "^3.0.0"
+  },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
     "babel-preset-es2015-rollup": "^1.2.0",
@@ -14,6 +20,7 @@
     "eslint": "^3.10.2",
     "gulp": "^3.9.1",
     "gulp-clean-css": "^2.0.13",
+    "gulp-concat": "^2.6.1",
     "gulp-minify": "^0.0.14",
     "gulp-rename": "^1.2.2",
     "gulp-rollup": "^2.5.1",
@@ -36,12 +43,26 @@
     "scripts": {
       "all": "src/scripts/**/*.js",
       "main": "src/scripts/app-view.js",
-      "bundle": "app.min.js"
+      "bundle": "app.min.js",
+      "vendors": "vendor.min.js",
+      "components": {
+        "codemirror": "codemirror/lib/codemirror.js",
+        "codemirror-mode": "codemirror/mode/clike/clike.js",
+        "jquery": "jquery/dist/jquery.slim.js",
+        "localforage": "localforage/dist/localforage.js",
+        "mousetrap": "mousetrap/mousetrap.js",
+        "superagent": "superagent/superagent.js"
+      }
     },
     "styles": {
       "all": "src/styles/**/*.scss",
       "main": "src/styles/style.scss",
-      "bundle": "app.min.css"
+      "bundle": "app.min.css",
+      "vendors": "vendor.min.css",
+      "components": {
+        "codemirror": "codemirror/lib/codemirror.css",
+        "codemirror-theme": "codemirror/theme/neat.css"
+      }
     },
     "config": {
       "gulpfile": "gulpfile.js"
