@@ -1,0 +1,115 @@
+// Node modules
+const path = require('path')
+
+// NPM modules
+const gulp = require('gulp')
+const del = require('del')
+const sass = require('gulp-sass')
+const cleanCSS = require('gulp-clean-css')
+const standard = require('gulp-standard')
+const rollup = require('gulp-rollup')
+const babel = require('rollup-plugin-babel')
+const rename = require('gulp-rename')
+const minify = require('gulp-minify')
+
+// Module's own package.json
+const pkg = require('./package.json')
+
+// Delete any files in the `./dist` directory. These includes any CSS files
+// built from SCSS and bundled ECMAScript 5 files built from ES6
+gulp.task('clean', () => {
+  return del(path.join(pkg.paths.dist, '*'))
+})
+
+/**
+ * BUILD TASKS
+ *
+ * The following tasks handle:
+ *  - SCSS -> CSS
+ *  - Checking that JS source files comply with the Standard JS rules
+ *  - JS (ES6) -> JS (ES5)
+ */
+
+// Build CSS from the app's SCSS stylesheets. Store the result in `./dist`
+gulp.task('styles', () => {
+  return gulp
+    .src(pkg.paths.styles.all)
+    .pipe(sass().on('error', sass.logError))
+    .pipe(cleanCSS())
+    .pipe(rename(pkg.paths.styles.bundle))
+    .pipe(gulp.dest(pkg.paths.dist))
+})
+
+// Check each JS source file to make sure it complies with the Standard JS style
+// and formatting rules. The task also enforces the Standard JS style for
+// config files
+gulp.task('lint', () => {
+  return gulp
+    .src([
+      pkg.paths.scripts.all,
+      pkg.paths.config.gulpfile
+    ])
+    .pipe(standard())
+    .pipe(standard.reporter('default', {
+      breakOnError: true,
+      quiet: true
+    }))
+})
+
+// Build a single, large JS file for the web app from smaller JS files. The
+// source JS files are run through a few pre-processing stages:
+//
+//  1. Use the "rollup" module bundler to combine the files into a single large
+//     file based on their dependency relationships.
+//  2. Use the "babel" transpiler to convert files from more modern ES6 syntax
+//     to a more accessible ES5 syntax.
+//  3. Since the concatenation of multiple JS files and the transpilation from
+//     ES6 -> ES5 can create a large final product, minify the result to
+//     reduce app bandwidth
+//
+gulp.task('scripts', () => {
+  return gulp
+    .src(pkg.paths.scripts.all)
+    .pipe(rollup({
+      entry: pkg.paths.scripts.main,
+      format: 'iife',
+      plugins: [
+        babel({
+          exclude: 'node_modules/**',
+          presets: ['es2015-rollup']
+        })
+      ]
+    }))
+    .pipe(rename(pkg.paths.scripts.bundle))
+    .pipe(minify({
+      ext: '.js',
+      noSource: true,
+    }))
+    .pipe(gulp.dest('./dist'))
+})
+
+// A combined task for compiling both JS and CSS
+gulp.task('build', ['styles', 'scripts'])
+
+/**
+ * WATCH TASKS
+ *
+ * The following tasks can be used during active development to re-run given
+ * commands whenever relevant source files change
+ */
+
+// A helper function to simplify the description of watch-tasks
+function runTaskOnChange (filepaths, task) {
+  return function () {
+    return gulp.watch(filepaths, [task])
+  }
+}
+
+// Run the `styles` task any time a SCSS file is changed
+gulp.task('styles:watch', runTaskOnChange(pkg.paths.styles.all, 'styles'))
+
+// Run the `lint` task any time a frontend JS file is changed
+gulp.task('lint:watch', runTaskOnChange(pkg.paths.scripts.all, 'lint'))
+
+// Run the `scripts` task any time a frontend JS file is changed
+gulp.task('scripts:watch', runTaskOnChange(pkg.paths.scripts.all, 'scripts'))
