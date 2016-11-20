@@ -33,6 +33,7 @@ func main() {
 
     // Serve static assets (CSS, JavaScript, images, etc.)
     r.Static("/public", "./frontend/dist")
+    r.Static("/assets", "./frontend/assets")
 
     // Attach API handling functions to their respective HTTP endpoints
     r.POST("/trace", handleTrace)
