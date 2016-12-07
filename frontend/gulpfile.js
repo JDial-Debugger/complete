@@ -9,7 +9,8 @@ const sass = require('gulp-sass')
 const cleanCSS = require('gulp-clean-css')
 const standard = require('gulp-standard')
 const concat = require('gulp-concat')
-const rollup = require('gulp-rollup')
+const rollupWrapper = require('gulp-rollup')
+const rollup = require('rollup')
 const babel = require('rollup-plugin-babel')
 const rename = require('gulp-rename')
 const minify = require('gulp-minify')
@@ -131,7 +132,7 @@ gulp.task('build-vendor-scripts', () => {
 gulp.task('scripts', () => {
   return gulp
     .src(pkg.paths.scripts.all)
-    .pipe(rollup({
+    .pipe(rollupWrapper({
       entry: pkg.paths.scripts.main,
       format: 'iife',
       plugins: [
@@ -144,9 +145,23 @@ gulp.task('scripts', () => {
     .pipe(rename(pkg.paths.scripts.bundle))
     .pipe(minify({
       ext: '.js',
-      noSource: true,
+      noSource: true
     }))
     .pipe(gulp.dest('./dist'))
+})
+
+gulp.task('scripts-dev', (done) => {
+  rollup.rollup({
+    entry: pkg.paths.scripts.main
+  }).then((bundle) => {
+    bundle.write({
+      format: 'iife',
+      dest: path.join(pkg.paths.dist, pkg.paths.scripts.bundle),
+      sourceMap: true
+    }).then(() => {
+      done()
+    })
+  })
 })
 
 // A combined task for compiling JS and CSS vendor files
@@ -177,3 +192,4 @@ gulp.task('lint:watch', runTaskOnChange(pkg.paths.scripts.all, 'lint'))
 
 // Run the `scripts` task any time a frontend JS file is changed
 gulp.task('scripts:watch', runTaskOnChange(pkg.paths.scripts.all, 'scripts'))
+gulp.task('scripts-dev:watch', runTaskOnChange(pkg.paths.scripts.all, 'scripts-dev'))
