@@ -1,5 +1,5 @@
 import EventHandler from './event-handler'
-import { sanitize } from './util'
+import { htmlBuilder, sanitize } from './util'
 
 const NOTIF_TYPES = [
   'fatal',
@@ -92,32 +92,37 @@ class Notification extends EventHandler {
 
     let html = ''
 
-    html += `<div class="notif ${this.type} ${this.large === true ? 'large' : ''}">`
-    html += '<div class="tag"></div>'
+    html += htmlBuilder.div({
+      classes: ['notif', this.type, this.large ? 'large' : ''],
+      children: [
+        htmlBuilder.div('tag'),
 
-    if (this.large) {
-      html += '<button class="dismiss" title="Dismiss"></button>'
-    }
+        this.large ? htmlBuilder.button({
+          classes: 'dismiss',
+          title: 'Dismiss',
+          children: ''
+        }) : '',
 
-    html += '<div class="content">'
-    html += `<p class="title">${this.title}</p>`
+        htmlBuilder.div({
+          classes: 'content',
+          children: [
+            htmlBuilder.p('title', this.title),
 
-    if (this.hasCode) {
-      html += `<code>${this.code}</code>`
-    }
+            this.hasCode ? htmlBuilder.code({children: this.code}) : '',
 
-    if (this.hasDetails) {
-      html += `<p class="details">${this.details}</p>`
-    }
+            this.hasDetails ? htmlBuilder.p('details', this.details) : '',
 
-    if (this.actions.length > 0) {
-      html += this.actions.reduce((html, action) => {
-        return html + `<button class="action" data-command="${action.command}">${action.name}</button>`
-      }, '')
-    }
-
-    html += '</div>' // end of .content
-    html += '</div>' // end of .notif
+            this.actions.length > 0 ? this.actions.reduce((html, action, index) => {
+              return html + htmlBuilder.button({
+                classes: 'action',
+                'data-command': action.command,
+                children: action.name
+              })
+            }, '') : ''
+          ]
+        })
+      ]
+    })
 
     let elem = jQuery(html)
 
@@ -152,14 +157,14 @@ class Notification extends EventHandler {
 
     if (this.large === false) {
       setTimeout(() => {
-        this.trigger('dismiss', [])
+        this.close()
       }, 4000)
     }
   }
 
   close () {
     if ((this.elem instanceof jQuery) === false) {
-      throw new Error('notification has not been rendered yet')
+      return false
     }
 
     // The addition of the "close" class triggers the
@@ -169,7 +174,10 @@ class Notification extends EventHandler {
     // Run the tear-down code when the notification's
     // exit animation has finished running
     setTimeout(() => {
-      this.elem.remove()
+      if (this.elem !== null) {
+        this.elem.remove()
+      }
+
       this.elem = null
       this.parent = null
       this.expired = true
