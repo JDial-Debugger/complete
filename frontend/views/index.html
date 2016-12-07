@@ -5,6 +5,13 @@
     <link rel="stylesheet" href="/public/app.min.css">
   </head>
   <body>
+    <div class="debug-settings">
+      <button class="close-settings"></button>
+      <h2>Settings</h2>
+      <hr>
+      <h3>Copy JSON data</h3>
+    </div>
+    <div class="body-mask"></div>
     <div class="app">
       <div class="mp-controls control-surface">
         <button class="mp-control-button" data-command="trace">Run</button>
@@ -18,24 +25,22 @@
         <button class="mp-control-button align-right" data-command="reset">Reset</button>
       </div>
       <div class="notif-bucket"></div>
-      <div class="mp-workspace">
-        <div class="mp-upper-wrapper">
-          <div class="mp-editor mp-panel-bordered">
-            <div class="mp-panel-description">Editor</div>
+      <div class="mp-workspace" style="bottom:16px">
+        <div class="mp-editor mp-panel-bordered">
+          <div class="mp-panel-description">Editor</div>
+        </div>
+        <div class="mp-runtime mp-panel-bordered">
+          <div class="control-surface">
+            <button class="mp-control-button no-text" data-command="jump-start" disabled title="Jump to Start"></button>
+            <button class="mp-control-button no-text" data-command="step-backward" disabled title="Next Step"></button>
+            <button class="mp-control-button no-text" data-command="step-forward" disabled title="Previous Step"></button>
+            <button class="mp-control-button no-text" data-command="jump-end" disabled title="Jump to End"></button>
           </div>
-          <div class="mp-runtime mp-panel-bordered">
-            <div class="control-surface">
-              <button class="mp-control-button no-text" data-command="jump-start" disabled title="Jump to Start"></button>
-              <button class="mp-control-button no-text" data-command="step-backward" disabled title="Next Step"></button>
-              <button class="mp-control-button no-text" data-command="step-forward" disabled title="Previous Step"></button>
-              <button class="mp-control-button no-text" data-command="jump-end" disabled title="Jump to End"></button>
-            </div>
-            <!-- <div class="mp-panel-description">Runtime</div> -->
-            <div class="trace-visualization"></div>
-            <div class="variables edit">
-              <div class="mp-panel-description">Variables</div>
-              <div class="variables-wrapper"></div>
-            </div>
+          <!-- <div class="mp-panel-description">Runtime</div> -->
+          <div class="trace-visualization"></div>
+          <div class="variables edit">
+            <div class="mp-panel-description">Variables</div>
+            <div class="variables-wrapper"></div>
           </div>
         </div>
       </div>

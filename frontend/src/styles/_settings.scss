@@ -1,0 +1,60 @@
+@import '_vars-colors';
+
+.debug-settings {
+  display: none;
+  position: fixed;
+  top: 16px;
+  bottom: 16px;
+  right: 16px;
+  left: 16px;
+  box-shadow: 0 0 32px black;
+  z-index: 1000;
+  background-color: white;
+  border-radius: 3px;
+
+  .close-settings {
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border-style: none;
+    color: gray;
+    cursor: pointer;
+
+    &::before {
+      content: "×";
+      font-size: 32px;
+      line-height: 28px;
+    }
+
+    &:hover {
+      color: black;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  h2 {
+    margin-left: 32px;
+  }
+
+  h3 {
+    margin-left: 32px;
+  }
+
+  hr {
+    height: 1px;
+    background-color: silver;
+    border-style: none;
+  }
+}
+
+.reveal-settings .debug-settings {
+  display: block;
+}

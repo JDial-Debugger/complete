@@ -1,52 +1,73 @@
 @import '_vars-layout';
 
-$shorten-speed: 0.3s;
-
 .mp-workspace {
   position: absolute;
   top: $layout-control-surface-height + 16px;
-  left: 16px;
-  right: 16px;
-  bottom: 0;
-  overflow: hidden;
+  left: 16px + 8px;
+  right: 16px + 8px;
+  bottom: 48px + 16px;
+  user-select: none;
 
-  .mp-upper-wrapper {
+  .mp-editor {
+    width: $layout-editor-width;
     position: absolute;
     top: 0;
-    bottom: 16px;
-    right: 8px;
-    left: 8px;
-    transition: bottom $shorten-speed;
-
-    &.shortened {
-      bottom: $layout-waveform-height + (2 * 16px);
-
-      & + .mp-lower-wrapper {
-        bottom: 16px;
-      }
-    }
-
-    .mp-editor {
-      width: $layout-editor-width;
-      position: absolute;
-      top: 0;
-      left: -8px;
-    }
-
-    .mp-runtime {
-      width: $layout-runtime-width;
-      position: absolute;
-      top: 0;
-      right: -8px;
-    }
+    left: -8px;
   }
 
-  .mp-lower-wrapper {
-    height: $layout-waveform-height;
+  .mp-runtime {
+    width: $layout-runtime-width;
+    position: absolute;
+    top: 0;
+    right: -8px;
+  }
+}
+
+.demo-bar {
+  $horiz-extremes: 128px;
+
+  height: 32px;
+  position: absolute;
+  bottom: 16px;
+  left: $horiz-extremes;
+  right: $horiz-extremes;
+  background-color: red;
+  user-select: none;
+
+  .left {
+    height: 16px;
+    width: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: blue;
+  }
+
+  .right {
+    height: 16px;
+    width: 50%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: green;
+  }
+
+  .slider {
+    height: 16px;
     position: absolute;
     left: 0;
-    right: 0;
-    bottom: -$layout-waveform-height;
-    transition: bottom $shorten-speed;
+    right: 16px;
+    bottom: 0;
+    background-color: gray;
+
+    .grip {
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      background-color: black;
+      cursor: col-resize;
+    }
   }
 }
