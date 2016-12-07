@@ -1,3 +1,7 @@
 .vagrant
 frontend/node_modules
 frontend/.sass-cache
+backend/suggest/SkechObject/lib/sketch-1.6.7
+backend/suggest/SkechObject/tmp
+*.js.map
+tmp
