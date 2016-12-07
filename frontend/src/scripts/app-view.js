@@ -32,7 +32,7 @@ class AppView {
 
       const payload = new TracePayload(this.edv.getProgram(), '')
 
-      const getTrace = (err, trace) => {
+      const getTrace = (err, whole) => {
         this.requestPending = false
 
         // If the "requestCancelled" field has been set between when the
@@ -49,13 +49,15 @@ class AppView {
         this.mcs.stopSpinning('trace')
         this.mcs.enableCommands(['debug'])
 
+        let trace = whole.trace
+
         // Display appropriate notifications if there was an error or
         // the given trace was well-formed but contains a runtime error
         if (err !== null) {
           // TODO
           NotificationView.send('fatal', 'Bad trace!').open()
           throw err
-        } else if (trace[0]['event'] === 'instruction_limit_reached') {
+        } else if (trace[trace.length - 1]['event'] === 'instruction_limit_reached') {
           let notif = NotificationView.send('fatal', 'Error generating trace', {
             large: true,
             code: trace[0]['exception_msg'],
@@ -76,7 +78,7 @@ class AppView {
 
           notif.open()
         } else {
-          this.rtv.render(trace)
+          this.rtv.render(whole)
         }
       }
 
@@ -89,6 +91,56 @@ class AppView {
       Network.getTrace(payload, getTrace)
     }
 
+    const suggestionAction = (payload) => {
+      this.mcs.disableCommands(['trace'])
+      this.mcs.startSpinning('trace')
+      this.mcs.enableCommands(['halt'])
+
+      // Clear any pending notifications
+      NotificationView.flush()
+
+      const getSuggestion = (err, raw) => {
+        this.requestPending = false
+
+        // If the "requestCancelled" field has been set between when the
+        // request was dispatched and when the request was returned, cancel
+        // any logic that would have been run with the request response. This
+        // property was most likely set by the user clicking the "Halt" button
+        // between when they clicked the "Run" button and when the trace was
+        // returned from the server
+        if (this.requestCancelled === true) {
+          this.requestCancelled = false
+          return
+        }
+
+        this.mcs.stopSpinning('trace')
+        this.mcs.enableCommands(['debug'])
+
+        if (err !== null) {
+          // TODO
+          NotificationView.send('fatal', 'Error getting suggestion').open()
+        } else {
+          try {
+            this.edv.makeSuggestion(raw)
+          } catch (err) {
+            if (err.message === 'no suggestion') {
+              NotificationView.send('alert', 'Could not make suggestion').open()
+            } else {
+              NotificationView.send('fatal', 'Unknown error analyzing suggestion response', {
+                code: err.message,
+                large: true
+              }).open()
+            }
+          }
+        }
+      }
+
+      this.requestCancelled = false
+      this.requestPending = true
+
+      Network.getSuggestion(payload, getSuggestion)
+    }
+
     const haltAction = () => {
       this.mcs.enableCommands(['trace'])
       this.mcs.disableCommands(['halt', 'debug'])
@@ -99,15 +151,12 @@ class AppView {
     }
 
     const debugAction = () => {
-      let popup = jQuery('<div id="debug-popup"></div>')
-      jQuery('body').append(popup)
-
-      let textarea1 = jQuery(`<textarea>${JSON.stringify(window.parsedTrace, null, '  ')}</textarea>`)
-      let textarea2 = jQuery(`<textarea>${JSON.stringify(window.moddedPoint, null, '  ')}</textarea>`)
-
-      popup.append(textarea1)
-      popup.append(textarea2)
+      jQuery('body').addClass('reveal-settings')
     }
+
+    jQuery('.debug-settings .close-settings').on('click', () => {
+      jQuery('body').removeClass('reveal-settings')
+    })
 
     const resetAction = () => {
       let [err, dropdownValue] = this.mcs.get('dropdown')
@@ -144,14 +193,14 @@ class AppView {
     this.mcs.on('reset', resetAction)
     this.mcs.on('dropdown', dropdownAction)
 
+    this.edv.on('apply-suggestion', traceAction)
+
     this.rtv.on('set-trace-point', (line) => {
       this.edv.freeze()
       this.edv.highlightLine(line)
     })
 
-    this.rtv.on('get-advice', () => {
-      traceAction()
-    })
+    this.rtv.on('get-suggestion', suggestionAction)
 
     // Handle loading either a default program or a saved program
     // the user has already been editing

@@ -313,7 +313,9 @@ $dot-right-margin: 6px;
       color: gray;
     }
 
-    
+    li.edit-alert {
+      animation: edit-alert 1s ease;
+    }
 
     li + li {
       margin-top: 4px;
@@ -360,5 +362,15 @@ $dot-right-margin: 6px;
     & + .action-button {
       margin-right: 8px;
     }
+  }
+}
+
+@keyframes edit-alert {
+  0% {
+    background-color: $color-bg-alert;
+  }
+
+  100% {
+    background: none;
   }
 }

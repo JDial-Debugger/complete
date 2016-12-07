@@ -1,6 +1,7 @@
 import EventHandler from './event-handler'
 import ControlSurface from './control-surface'
 import NotificationView from './notification-view'
+import SuggestionPayload from './suggestion-payload'
 import { htmlBuilder, sanitize } from './util'
 
 class RuntimeView extends EventHandler {
@@ -62,11 +63,11 @@ class RuntimeView extends EventHandler {
 
     // Define events that can be emitted by RuntimeView objects. set-trace-point
     // events are emitted whenever the user changes the currently viewed
-    // execution point. get-advice events are emitted whenever the user has
+    // execution point. get-suggestion events are emitted whenever the user has
     // specified a variable's target value and indicates that they want the app
     // to suggest some changes
     super.declareEvent('set-trace-point')
-    super.declareEvent('get-advice')
+    super.declareEvent('get-suggestion')
 
     // A boolean flag indicating whether this view is populated with program
     // trace data. If it isn't populated, the step-forward and step-backward
@@ -84,7 +85,9 @@ class RuntimeView extends EventHandler {
     this.showPendingMessage()
   }
 
-  render (trace) {
+  render (whole) {
+    let trace = whole.trace
+
     if (Array.isArray(trace) === false) {
       throw new Error(`trace must be an array, received ${typeof trace}`)
     }
@@ -141,9 +144,9 @@ class RuntimeView extends EventHandler {
           }, []).join(htmlBuilder.span('sig-syntax', ','))
 
           let funcName = sanitize(point['func_name'])
-          let returnValue = sanitize(returnValueStack.pop())
+          let returnData = returnValueStack.pop()
 
-          if (typeof returnValue !== 'string') {
+          if (typeof returnData.value === 'undefined') {
             throw new Error('call with no return value')
           }
 
@@ -174,7 +177,11 @@ class RuntimeView extends EventHandler {
                 argsHtml,
                 htmlBuilder.span('sig-syntax', ')'),
                 htmlBuilder.span('sig-syntax', '&xrArr;'),
-                htmlBuilder.span('sig-value field', returnValue)
+                htmlBuilder.span({
+                  classes: ['sig-value', 'field', 'sig-return-value'],
+                  children: sanitize(returnData.value.toString()),
+                  'data-point': sanitize(returnData.index.toString())
+                })
               ]
             }),
 
@@ -197,12 +204,22 @@ class RuntimeView extends EventHandler {
             let returnValue = 'void'
 
             try {
-              returnValue = point['stack_to_render'][0]['encoded_locals']['__return__'].toString()
+              returnValue = point['stack_to_render'][0]['encoded_locals']['__return__']
             } catch (err) {
+              NotificationView.send('fatal', 'Malformed execution trace', {
+                large: true,
+                code: 'trace point ' + index + ' has type "return" but no `__return__` field',
+                details: 'Try running "Trace" again'
+              }).open()
+
               throw new Error(`cannot get "__return__" field of point ${index}`)
             }
 
-            returnValueStack.push(sanitize(returnValue))
+            returnValueStack.push({
+              value: returnValue,
+              line: point.line || -1,
+              index: index
+            })
           }
 
           pointHtml = htmlBuilder([
@@ -256,7 +273,25 @@ class RuntimeView extends EventHandler {
       this.setVisiblePoint(index)
     })
 
+    this.visualizationElem.find('.scope .sig-return-value').on('click', (event) => {
+      // Prevents the parent <li> from ALSO receiving a "click" event
+      event.stopPropagation()
+      event.preventDefault()
+
+      let returnPointIndex = parseInt(jQuery(event.currentTarget).attr('data-point'), 10)
+
+      if (isNaN(returnPointIndex)) {
+        NotificationView.send('fatal', 'Unknown return point').open()
+        throw new Error('unknown return point')
+      }
+
+      this.setVisiblePoint(returnPointIndex, '__return__')
+
+      return false
+    })
+
     // Cache the trace data
+    this.whole = whole
     this.trace = trace
 
     // Set the "rendered" flag to true
@@ -304,7 +339,7 @@ class RuntimeView extends EventHandler {
     this.showPendingMessage()
   }
 
-  setVisiblePoint (index) {
+  setVisiblePoint (index, focus) {
     if (this.rendered === true) {
       if (index >= this.trace.length || index < 0) {
         throw new Error(`index ${index} is out of range`)
@@ -322,6 +357,14 @@ class RuntimeView extends EventHandler {
       radioButton.prop('checked', true)
       this.setVisibleScope(index)
       super.trigger('set-trace-point', [line])
+
+      if (typeof focus === 'string') {
+        this.variablesElem
+          .find(`ol li[data-variable="${focus}"]`)
+          .addClass('edit-alert')
+          .find('.edit')
+          .focus()
+      }
     }
   }
 
@@ -334,32 +377,78 @@ class RuntimeView extends EventHandler {
 
       this.variablesElem.find('.action-button.success').on('click', (event) => {
         let list = this.variablesElem.find('ol li')
-        let varnames = []
 
         if (list.length > 0) {
+          let wasError = false
+
           let goals = list.toArray().filter((li) => {
+            // Only fields with non-empty values pass through this filter
             return jQuery(li).find('.edit').val() !== ''
           }).map((li) => {
-            let name = jQuery(li).find('.name').text()
-            varnames.push(name)
+            let varname = jQuery(li).find('.name').text()
+            let oldValue = parseInt(jQuery(li).find('.value').text())
+            let newValue = parseInt(jQuery(li).find('.edit').val())
+
+            if (isNaN(oldValue)) {
+              // TODO: notification that only integers can be accepted RN
+              wasError = true
+            }
+
+            if (isNaN(newValue)) {
+              // TODO: notification that only integers can be accepted RN
+              wasError = true
+            }
+
+            // FIXME: only integers are currently supported
             return {
-              name: name,
-              oldValue: parseInt(jQuery(li).find('.value').text()),
-              newValue: parseInt(jQuery(li).find('.edit').val())
+              varname: varname,
+              oldValue: oldValue,
+              newValue: newValue
             }
           })
 
-          let pointClone = JSON.parse(JSON.stringify(this.trace[this.index]))
+          // let pointClone = JSON.parse(JSON.stringify(this.trace[this.index]))
 
-          pointClone['stack_to_render'][0]['ordered_varnames'] = varnames
-          pointClone['stack_to_render'][0]['encoded_locals'] = goals.reduce((map, goal) => {
-            map[goal.name] = goal.newValue
-            return map
-          }, {})
+          // pointClone['stack_to_render'][0]['ordered_varnames'] = varnames
+          // pointClone['stack_to_render'][0]['encoded_locals'] = goals.reduce((map, goal) => {
+          //   map[goal.name] = goal.newValue
+          //   return map
+          // }, {})
 
-          window.moddedPoint = pointClone
+          // For the "Debug" view
+          // window.moddedPoint = pointClone
+          if (wasError === false) {
+            this.getSuggestions(goals)
+          } else {
+            // TODO: notification that request for suggestions wasn't sent
+          }
         }
       })
+    }
+  }
+
+  getSuggestions (goals) {
+    if (this.rendered === true) {
+      if (this.index >= this.trace.length || this.index < 0) {
+        throw new Error(`index ${this.index} is out of range`)
+      }
+
+      // Create a deep-copy of the current trace point
+      let clone = JSON.parse(JSON.stringify(this.trace[this.index]))
+
+      // Apply the trace transformations to the cloned trace point
+      clone['stack_to_render'][0]['encoded_locals'] = goals.reduce((hash, goal) => {
+        hash[goal.varname] = goal.newValue
+        return hash
+      }, {})
+
+      clone['stack_to_render'][0]['ordered_varnames'] = goals.map((goal) => goal.varname)
+
+      // Send this data to the app-view module for processing
+      let wholeStr = JSON.stringify(this.whole)
+      let pointStr = JSON.stringify(clone)
+      let pointIdx = this.index
+      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, pointStr, pointIdx)])
     }
   }
 
@@ -384,18 +473,21 @@ class RuntimeView extends EventHandler {
             return html
           }
 
-          return html + htmlBuilder.li([
-            htmlBuilder.span('current', [
-              htmlBuilder.span('name', sanitize(localName)),
-              htmlBuilder.span('value field', sanitize(locals[localName]))
-            ]),
-            ' &xrarr; ',
-            htmlBuilder.input({
-              type: 'textbox',
-              classes: ['edit'],
-              placeholder: '?'
-            })
-          ])
+          return html + htmlBuilder.li({
+            'data-variable': sanitize(localName),
+            children: [
+              htmlBuilder.span('current', [
+                htmlBuilder.span('name', sanitize(localName)),
+                htmlBuilder.span('value field', sanitize(locals[localName]))
+              ]),
+              ' &xrarr; ',
+              htmlBuilder.input({
+                type: 'textbox',
+                classes: ['edit'],
+                placeholder: '?'
+              })
+            ]
+          })
         }, '')
 
         this.variablesElem.find('ol').html(variablesHtml)

@@ -1,7 +1,14 @@
+import NotificationView from './notification-view'
+import EventHandler from './event-handler'
+
 const HL_LINE_CLASS = 'active-line'
 
-class EditorView {
+class EditorView extends EventHandler {
   constructor (wrapperElem, initialProgram = '') {
+    super()
+
+    super.declareEvent('apply-suggestion')
+
     if ((wrapperElem instanceof jQuery) === false) {
       throw new Error('expected argument to new EditorView() to be a jQuery object')
     }
@@ -89,16 +96,69 @@ class EditorView {
     this.highlightedLine = -1
   }
 
-  /*
-  showSuggestion (range: Range, message: string, snippet: string, acceptFn, declineFn) {
-    window.ConstantSuggestion(
-      range,
-      message.toString(),
-      snippet.toString(),
-      acceptFn,
-      declineFn)
+  makeSuggestion (raw) {
+    let matches = raw.match(/\{([^\n]*)\}/)
+
+    if (matches === null || (matches[1] && matches[1].length === 0)) {
+      console.error(`RAW SUGGESTION: ${raw}`)
+      throw new Error('no suggestion')
+    }
+
+    let match = matches[1]
+
+    // TODO: only looks at first suggestion currently
+    match.split(',')
+    .filter((p, i) => i === 0)
+    .forEach((rawPair) => {
+      let pair = rawPair.split('=')
+
+      if (pair.length !== 2) {
+        throw new Error(`no pairs: ${match}`)
+      }
+
+      let line = parseInt(pair[0], 10)
+      let value = parseInt(pair[1], 10)
+
+      if (isNaN(line)) {
+        throw new Error(`line is NaN: ${match}`)
+      }
+
+      if (isNaN(value)) {
+        throw new Error(`value is NaN: ${match}`)
+      }
+
+      let notif = NotificationView.send('success', 'Possible change', {
+        code: `add ${value} on line #${line}?`,
+        large: true,
+        actions: [
+          { name: 'Change', command: 'apply-suggestion' },
+          { name: 'Try again', command: 'different-suggestion' }
+        ]
+      })
+
+      notif.on('apply-suggestion', () => {
+        let originalLine = this.editor.getLine(line - 1)
+        let modifiedLine = originalLine.replace(/\b\d+\b/, value.toString())
+        this.editor.replaceRange(
+          modifiedLine,
+          {line: line - 1, ch: 0},
+          {line: line - 1, ch: originalLine.length}
+        )
+
+        this.trigger('apply-suggestion', [])
+      })
+
+      notif.on('different-suggestion', () => {
+        NotificationView.send('info', 'Make different suggestion').open()
+      })
+
+      notif.on('dismiss', () => {
+        NotificationView.send('info', 'Suggestion ignored').open()
+      })
+
+      notif.open()
+    })
   }
-  */
 }
 
 export default EditorView
