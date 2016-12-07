@@ -44,8 +44,78 @@
           </div>
         </div>
       </div>
+      <div class="demo-bar" style="display:none">
+        <div class="left"></div>
+        <div class="right"></div>
+        <div class="slider">
+          <div class="grip" style="left:50%"></div>
+        </div>
+      </div>
     </div>
     <script src="/public/vendor.min.js"></script>
     <script src="/public/app.min.js"></script>
+
+    <script>
+      class ConstrainedGrip {
+        constructor (elem) {
+          if ((elem instanceof jQuery) === false) {
+            throw new Error('1st arg. must be a "jQuery" object')
+          }
+
+          const horizPadding = 128
+          const panelPadding = 16
+          const gripWidth = 16
+          let mouseOffset = 0
+
+          const mouseDown = (event) => {
+            mouseOffset = event.layerX
+            document.addEventListener('mousemove', mouseMove, false)
+            document.addEventListener('mouseup', mouseUp, false)
+            document.body.parentElement.style.setProperty('cursor', 'col-resize', 'important')
+          }
+
+          const mouseMove = (event) => {
+            let pageX = event.pageX
+
+            if (prevX !== pageX) {
+              let gripRange = (document.body.clientWidth - (2 * horizPadding)) - gripWidth
+              let gripOffset = (pageX - horizPadding) - mouseOffset              
+              let gripPercent = decimalPlaces(100 * (gripOffset / gripRange), 2)
+              gripPercent = (gripPercent > 100 ? 100 : (gripPercent < 0 ? 0 : gripPercent))
+
+              let panelRange = (document.body.clientWidth - (2 * panelPadding)) - gripWidth
+              let panelOffset = (pageX - panelPadding) - mouseOffset              
+              let panelPercent = decimalPlaces(100 * (panelOffset / panelRange), 2)
+              panelPercent = (panelPercent > 100 ? 100 : (panelPercent < 0 ? 0 : panelPercent))
+
+              if (gripPercent > 100) {
+                
+              }
+
+              elem.style.left = `${gripPercent}%`
+              prevX = pageX
+            }
+          }
+
+          const mouseUp = () => {
+            document.removeEventListener('mousemove', mouseMove, false)
+            document.removeEventListener('mouseup', mouseUp, false)
+            // document.body.parentElement.style.cursor = 'default'
+          }
+
+          elem = jQuery(elem).get(0)
+          elem.addEventListener('mousedown', mouseDown, false)
+
+          let prevX = 0
+        }
+      }
+
+      function decimalPlaces(n, places) {
+        let nth = Math.pow(10, places)
+        return Math.round(n * nth) / nth
+      }
+
+      const grip = new ConstrainedGrip($('.grip'))
+    </script>
   </body>
 </html>
