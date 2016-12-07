@@ -16,10 +16,15 @@ export const htmlBuilder = function (elements) {
   return elements.reduce((out, elem) => out + elem, '')
 }
 
+// Tuple array of the form: [<tag name> , <tag is self-closing>]
 const VALID_TAGS = [
+  ['button', false],
+  ['code', false],
+  ['div', false],
   ['input', true],
   ['label', false],
   ['li', false],
+  ['p', false],
   ['span', false]
 ]
 
@@ -30,6 +35,7 @@ const VALID_FIELDS = [
   'id',
   'name',
   'placeholder',
+  'title',
   'type',
   'value'
 ]
@@ -53,7 +59,7 @@ VALID_TAGS.forEach((tagInfo) => {
         if (selfClosing) {
           return `<${tagName}>`
         } else {
-          return `<${tagName}></${tagName}>`
+          return `<${tagName} class="${first}"></${tagName}>`
         }
       } else if (Array.isArray(second)) {
         // Assume "second" argument is an array of HTML strings
@@ -91,7 +97,7 @@ VALID_TAGS.forEach((tagInfo) => {
         if (VALID_FIELDS.includes(attrName)) {
           if (attrName === 'classes') {
             // Handle the "classes" field specially
-            if (Array.isArray(attrName['classes'])) {
+            if (Array.isArray(first['classes'])) {
               // Handle classes when given as an array
               return attrs + ` class="${first['classes'].join(' ')}"`
             } else {
