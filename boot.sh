@@ -1,6 +1,6 @@
 #! /bin/sh
 
-SKETCH_TARBALL="sketch-1.6.7.done.tar.gz"
+SKETCH_TARBALL="sketch-1.6.7.linux-x86.tar.gz"
 SKETCH_DIR="sketch-1.6.7"
 SKETCH_EX=$(which sketch)
 
