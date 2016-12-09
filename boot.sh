@@ -9,11 +9,16 @@ cd /vagrant/backend/suggest/SkechObject/lib/
 # Extract the sketch binary if it's not extracted already
 if ! [ -d "./$SKETCH_DIR" ]; then
   if [ -e "./$SKETCH_TARBALL" ]; then
-    tar xvf "./$SKETCH_TARBALL"
+    echo "extracting sketch..."
+    tar xf "./$SKETCH_TARBALL"
+    echo "done extracting sketch"
   else
-    echo "cant find sketch!"
+    echo "cant find sketch"
+    echo "quitting in error..."
     exit 1
   fi
+else
+  echo "found sketch"
 fi
 
 # Add Sketch to this script's PATH
@@ -22,4 +27,5 @@ SKETCH_PATH="$PATH:`pwd`/$SKETCH_DIR/sketch-frontend"
 cd /vagrant
 
 # DO NOT CHANGE without also changing the Vagrantfile so that port mapping is maintained
+echo "starting server..."
 PORT=3000 GIN_MODE=release PATH=$SKETCH_PATH JAVA_DIR=/vagrant/backend/suggest ./server
