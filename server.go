@@ -112,6 +112,13 @@ func handleTrace(c *gin.Context) {
 
 func handleSuggestion(java_dir string) gin.HandlerFunc {
     return func (c *gin.Context) {
+        if hasSketch := os.Getenv("SKETCH"); hasSketch == "FALSE" {
+            c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "sketch not included on this server",
+            })
+            return
+        }
+
         var sugReq SuggestionRequest
 
         if c.BindJSON(&sugReq) != nil {
