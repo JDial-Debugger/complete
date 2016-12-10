@@ -100,7 +100,7 @@ class Notification extends EventHandler {
         this.large ? htmlBuilder.button({
           classes: 'dismiss',
           title: 'Dismiss',
-          children: ''
+          children: '&times;'
         }) : '',
 
         htmlBuilder.div({

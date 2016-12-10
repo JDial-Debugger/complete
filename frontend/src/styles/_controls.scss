@@ -75,31 +75,28 @@ $sprite-grid-unit: 18px;
       ($assets-sprite-vert-icons * $sprite-grid-unit);
   }
 
-  &[data-command="trace"]::before {                  background-position: sprite-region(3, 1); }
-  &[data-command="trace"]:disabled::before {         background-position: sprite-region(3, 3); }
-  &[data-command="halt"]::before {                   background-position: sprite-region(7, 1); }
-  &[data-command="halt"]:disabled::before {          background-position: sprite-region(7, 3); }
-  &[data-command="debug"]::before {                  background-position: sprite-region(1, 0); }
-  &[data-command="debug"]:disabled::before {         background-position: sprite-region(1, 2); }
-  &[data-command="reset"]::before {                  background-position: sprite-region(5, 1); }
-  &[data-command="reset"]:disabled::before {         background-position: sprite-region(5, 3); }
-  &[data-command="jump-start"]::before {             background-position: sprite-region(6, 0); }
-  &[data-command="jump-start"]:disabled::before {    background-position: sprite-region(6, 2); }
-  &[data-command="step-forward"]::before {           background-position: sprite-region(1, 1); }
-  &[data-command="step-forward"]:disabled::before {  background-position: sprite-region(1, 3); }
-  &[data-command="step-backward"]::before {          background-position: sprite-region(4, 1); }
-  &[data-command="step-backward"]:disabled::before { background-position: sprite-region(4, 3); }
-  &[data-command="jump-end"]::before {               background-position: sprite-region(5, 0); }
-  &[data-command="jump-end"]:disabled::before {      background-position: sprite-region(5, 2); }
+  &[data-command="trace"]::before {                  background-position: sprite-region(12, 0); }
+  &[data-command="trace"]:disabled::before {         background-position: sprite-region(12, 1); }
+  &[data-command="halt"]::before {                   background-position: sprite-region(16, 0); }
+  &[data-command="halt"]:disabled::before {          background-position: sprite-region(16, 1); }
+  &[data-command="debug"]::before {                  background-position: sprite-region( 1, 0); }
+  &[data-command="debug"]:disabled::before {         background-position: sprite-region( 1, 1); }
+  &[data-command="reset"]::before {                  background-position: sprite-region(14, 0); }
+  &[data-command="reset"]:disabled::before {         background-position: sprite-region(14, 1); }
+  &[data-command="jump-start"]::before {             background-position: sprite-region( 6, 0); }
+  &[data-command="jump-start"]:disabled::before {    background-position: sprite-region( 6, 1); }
+  &[data-command="step-forward"]::before {           background-position: sprite-region(10, 0); }
+  &[data-command="step-forward"]:disabled::before {  background-position: sprite-region(10, 1); }
+  &[data-command="step-backward"]::before {          background-position: sprite-region(13, 0); }
+  &[data-command="step-backward"]:disabled::before { background-position: sprite-region(13, 1); }
+  &[data-command="jump-end"]::before {               background-position: sprite-region( 5, 0); }
+  &[data-command="jump-end"]:disabled::before {      background-position: sprite-region( 5, 1); }
+  &[data-command].icon-spinning::before {            background-position: sprite-region(15, 0); }
+  &[data-command].icon-spinning:disabled::before {   background-position: sprite-region(15, 1); }
 
   &[data-command].icon-spinning::before {
     content: "";
-    background-position: sprite-region(6, 1);
     animation: icon-spinning 0.5s infinite steps(8);
-  }
-
-  &[data-command].icon-spinning:disabled::before {
-    background-position: sprite-region(6, 1);
   }
 }
 

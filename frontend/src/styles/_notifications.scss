@@ -1,9 +1,11 @@
+@import '_vars-assets';
 @import '_vars-colors';
 @import '_vars-fonts';
 @import '_vars-layout';
 
 $max-notif-height: 300px;
 $notif-gap: 6px;
+$sprite-grid-unit: 32px;
 
 .notif-bucket {
   position: absolute;
@@ -59,18 +61,24 @@ $notif-gap: 6px;
     left: 0;
 
     &::before {
+      $margin: ($tag-width - 32px) / 2;
+
+      content: "";
+      width: 32px;
+      height: 32px;
       display: block;
-      margin: 12px ($tag-width - 20px) / 2;
-      font-weight: 100;
-      font-family: "Black Tie";
-      font-size: 20px;
+      margin: 6px $margin 0;
+      background-image: url($assets-sprite-path);
+      background-size:
+        ($assets-sprite-horiz-icons * $sprite-grid-unit)
+        ($assets-sprite-vert-icons * $sprite-grid-unit);
     }
   }
 
-  &.fatal   .tag::before { content: ""; } // circle with "!"
-  &.alert   .tag::before { content: ""; } // circle with "!"
-  &.info    .tag::before { content: ""; } // circle with "i"
-  &.success .tag::before { content: ""; } // circle with check mark
+  &.fatal   .tag::before { background-position: sprite-region(19, 1); } // circle with "!"
+  &.alert   .tag::before { background-position: sprite-region(18, 1); } // circle with "!"
+  &.info    .tag::before { background-position: sprite-region(19, 0); } // circle with "i"
+  &.success .tag::before { background-position: sprite-region(18, 0); } // circle with check mark
 
   .dismiss {
     width: 20px;
@@ -82,7 +90,8 @@ $notif-gap: 6px;
     right: 4px;
     background: none;
     border-style: none;
-    font-family: "Black Tie";
+    font-size: 24px;
+    line-height: 16px;
     cursor: pointer;
 
     &:focus {

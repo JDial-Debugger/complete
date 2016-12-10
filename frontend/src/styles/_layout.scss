@@ -24,7 +24,8 @@
 }
 
 .demo-bar {
-  $horiz-extremes: 128px;
+  // $horiz-extremes: 128px;
+  $horiz-extremes: 16px;
 
   height: 32px;
   position: absolute;
