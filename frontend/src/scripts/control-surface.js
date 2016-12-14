@@ -43,8 +43,8 @@ class ControlSurface extends EventHandler {
 
   on (name, listener) {
     if (name === 'dropdown' && this.dropdown !== null) {
-      jQuery(this.dropdown).on('change', () => {
-        listener.apply({}, [null, jQuery(this).val()])
+      jQuery(this.dropdown).on('change', (event) => {
+        listener.apply({}, [jQuery(event.currentTarget).val()])
       })
     } else {
       super.on(name, listener)
