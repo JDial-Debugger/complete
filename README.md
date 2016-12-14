@@ -4,34 +4,34 @@
 
 ### Standard use:
 
-- [Vagrant](#)
+- [Vagrant](https://www.vagrantup.com/)
   - This is a tool that makes it easy to boot up virtual machines's for easy development
   - Recommended for running JDial since this app needs to be run in a Linux AMD environment
-  - Instructions for installing Vagrant can be found [here](#)
-  - Once Vagrant is installed, see [Booting up the Server](#) for instructions on how to get JDial running inside of a Vagrant virtual machine
+  - Instructions for installing Vagrant can be found [here](https://www.vagrantup.com/docs/installation/)
+  - Once Vagrant is installed, see [Booting up the Server](https://github.com/isaacev/jdial-webapp#booting-up-the-server) for instructions on how to get JDial running inside of a Vagrant virtual machine
 
-- [Java 8](#)
+- [Java 8](https://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html)
   - If using Vagrant VM to run the server, this will be automatically installed by the Vagrantfile
 
-- [Sketch](#)
+- [Sketch](https://bitbucket.org/gatoatigrado/sketch-frontend/wiki/Installation)
   - If using Vagrant, here's how to install Sketch on the VM:
-    1. Download [this](#) pre-built Sketch tarball for Linux AMD
+    1. Download [this](https://github.com/isaacev/jdial-webapp/releases/tag/0.1) pre-built Sketch tarball for Linux AMD
     2. Copy the tarball to `jdial/backend/suggest/SkechObject/lib`
     3. Sketch will be available inside the VM once the JDial HTTP server has booted up
   - If running JDial in some other environment, exposing Sketch on the system `PATH` will allow JDial to call & use Sketch
-    - Installation for how to build Sketch from source are available [here](#)
+    - Installation for how to build Sketch from source are available [here](https://github.com/isaacev/jdial-webapp#booting-up-the-server)
 
 
 ### Frontend development:
 
-- [Node & NPM](#)
+- [Node & NPM](https://nodejs.org/en/)
   - Developing the frontend JavaScript source code requires Node.js and NPM for bundling, minifying, and transpiling the JavaScript
   - Install NPM dependencies by running `npm install` from inside the `jdial/frontend` directory
   - Once edits have been made to JavaScript inside `jdial/frontend/src/scripts`, run `gulp scripts` from inside the `jdial/frontend` directory to compile JavaScript
     - The various build scripts store their output in the `jdial/frontend/dist` directory
 
-- [Ruby & SASS](#)
-  - These are only necessary when developing the frontend's styles
+- [SASS](http://sass-lang.com/install)
+  - This is only necessary when developing the frontend's styles
   - Run `gulp styles` from inside the `jdial/frontend` directory to compile all SCSS files in `jdial/frontend/src/styles` into a single CSS file
     - The output of this build process is stored in the `jdial/frontend/dist` directory
 
