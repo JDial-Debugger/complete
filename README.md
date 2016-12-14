@@ -52,3 +52,5 @@ These steps assume basic familiarity with the command line and assume that Vagra
   - `server.go` is the source code for the server binary
   - `boot.sh` is a Bash script for unpacking Sketch from a tarball archive and booting up the JDial HTTP server. If Sketch is not available in `jdial/backend/suggest/SkechObject/lib` the script will fail.
   - `boot-no-sketch.sh` in a Bash script that will boots the HTTP server without a need for Sketch. Any calls to HTTP endpoints on the server that depend on Sketch will return a 501 error code
+
+5. To launch the HTTP server, run `sh boot.sh`. This command will spawn an HTTP server listening to `localhost:8080`
