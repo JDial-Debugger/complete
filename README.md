@@ -40,7 +40,7 @@
 
 These steps assume basic familiarity with the command line and assume that Vagrant has been installed and that this repository has been cloned locally and that the current working directory is the root directory of this project.
 
-1. If the current working directory is the same directory as the `Vagrantfile`, run the command `vagrant up`
+1. From the root `jdial` directory (the same directory with the `Vagrantfile`), run the command `vagrant up`
   - If this is the first time you have booted up Vagrant for this project, it may take a while as a Vagrant box is downloaded and Java 8 is installed on the newly created virtual machine
 
 2. Once the `vagrant up` command has finished, if no major errors have been reported run `vagrant ssh`. This command will log into the newly created virtual machine.
