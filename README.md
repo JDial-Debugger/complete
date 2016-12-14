@@ -19,7 +19,7 @@
     2. Copy the tarball to `jdial/backend/suggest/SkechObject/lib`
     3. Sketch will be available inside the VM once the JDial HTTP server has booted up
   - If running JDial in some other environment, exposing Sketch on the system `PATH` will allow JDial to call & use Sketch
-    - Installation for how to build Sketch from source are available [here](https://github.com/isaacev/jdial-webapp#booting-up-the-server)
+    - Installation for how to build Sketch from source are available [here](https://bitbucket.org/gatoatigrado/sketch-frontend/wiki/Installation)
 
 
 ### Frontend development:
