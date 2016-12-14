@@ -54,6 +54,8 @@ class AppView {
 
         let trace = whole.trace
 
+        DevtoolsView.setWholeTrace(whole)
+
         // Display appropriate notifications if there was an error or
         // the given trace was well-formed but contains a runtime error
         if (err !== null) {

@@ -89,8 +89,6 @@ class RuntimeView extends EventHandler {
   render (whole) {
     let trace = whole.trace
 
-    DevtoolsView.setWholeTrace(trace)
-
     if (Array.isArray(trace) === false) {
       throw new Error(`trace must be an array, received ${typeof trace}`)
     }
