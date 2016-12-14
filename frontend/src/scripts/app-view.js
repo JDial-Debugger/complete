@@ -5,6 +5,7 @@ import NotificationView from './notification-view'
 import RuntimeView from './runtime-view'
 import Storage from './storage'
 import TracePayload from './trace-payload'
+import DevtoolsView from './devtools-view'
 
 class AppView {
   constructor () {
@@ -17,6 +18,9 @@ class AppView {
     this.requestCancelled = false
 
     this._init()
+
+    // Attaches clipboard event listeners to relavent Jdial devtools buttons
+    DevtoolsView.initializeClipboard()
   }
 
   _init () {
@@ -47,7 +51,6 @@ class AppView {
         }
 
         this.mcs.stopSpinning('trace')
-        this.mcs.enableCommands(['debug'])
 
         let trace = whole.trace
 
@@ -114,7 +117,6 @@ class AppView {
         }
 
         this.mcs.stopSpinning('trace')
-        this.mcs.enableCommands(['debug'])
 
         if (err !== null) {
           // TODO
@@ -143,20 +145,17 @@ class AppView {
 
     const haltAction = () => {
       this.mcs.enableCommands(['trace'])
-      this.mcs.disableCommands(['halt', 'debug'])
+      this.mcs.disableCommands(['halt'])
       this.rtv.clear()
       this.edv.unfreeze()
       this.requestCancelled = true
       this.mcs.stopSpinning('trace')
+      DevtoolsView.clearTraceData()
     }
 
     const debugAction = () => {
-      jQuery('body').addClass('reveal-settings')
+      DevtoolsView.showPanel()
     }
-
-    jQuery('.debug-settings .close-settings').on('click', () => {
-      jQuery('body').removeClass('reveal-settings')
-    })
 
     const resetAction = () => {
       let [err, dropdownValue] = this.mcs.get('dropdown')

@@ -1,3 +1,4 @@
+import DevtoolsView from './devtools-view'
 import EventHandler from './event-handler'
 import ControlSurface from './control-surface'
 import NotificationView from './notification-view'
@@ -87,6 +88,8 @@ class RuntimeView extends EventHandler {
 
   render (whole) {
     let trace = whole.trace
+
+    DevtoolsView.setWholeTrace(trace)
 
     if (Array.isArray(trace) === false) {
       throw new Error(`trace must be an array, received ${typeof trace}`)
@@ -407,16 +410,6 @@ class RuntimeView extends EventHandler {
             }
           })
 
-          // let pointClone = JSON.parse(JSON.stringify(this.trace[this.index]))
-
-          // pointClone['stack_to_render'][0]['ordered_varnames'] = varnames
-          // pointClone['stack_to_render'][0]['encoded_locals'] = goals.reduce((map, goal) => {
-          //   map[goal.name] = goal.newValue
-          //   return map
-          // }, {})
-
-          // For the "Debug" view
-          // window.moddedPoint = pointClone
           if (wasError === false) {
             this.getSuggestions(goals)
           } else {
@@ -448,6 +441,10 @@ class RuntimeView extends EventHandler {
       let wholeStr = JSON.stringify(this.whole)
       let pointStr = JSON.stringify(clone)
       let pointIdx = this.index
+
+      // Make data available to the Debug panel
+      DevtoolsView.setModifiedTracePoint(clone, pointIdx)
+
       this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, pointStr, pointIdx)])
     }
   }

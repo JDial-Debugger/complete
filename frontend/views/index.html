@@ -5,18 +5,99 @@
     <link rel="stylesheet" href="/public/app.min.css">
   </head>
   <body>
-    <div class="debug-settings">
-      <button class="close-settings"></button>
-      <h2>Settings</h2>
+    <div id="devtools-view">
+      <button class="close-devtools"></button>
+      <h2>Development Tools</h2>
       <hr>
-      <h3>Copy JSON data</h3>
+      <div class="devtools-groups">
+        <div class="group">
+          <h3>Settings&nbsp;&nbsp;<em style="color:silver">Demo</em></h3>
+          <form>
+            <dl class="form-group">
+              <dt><label>Example Select</label></dt>
+              <dd>
+                <select class="form-select">
+                  <option>Choose an option</option>
+                  <option>Git</option>
+                  <option>Subversion</option>
+                  <option>Social Coding</option>
+                  <option>Beets</option>
+                  <option>Bears</option>
+                  <option>Battlestar Galactica</option>
+                </select>
+              </dd>
+            </dl>
+
+            <div class="form-checkbox">
+              <label>
+                <input type="checkbox" checked="checked">
+                A configuration option
+              </label>
+              <p class="note">
+                This will do insanely <strong>awesome</strong> and <strong>amazing</strong> things!
+              </p>
+            </div>
+
+            <div class="form-checkbox">
+              <label>
+                <input type="checkbox" checked="checked">
+                Advanced analysis
+              </label>
+              <p class="note">
+                This option tends to make analysis much slower
+              </p>
+            </div>
+
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </form>
+        </div>
+        <div class="group">
+          <h3>Data</h3>
+
+          <form>
+            <dl class="form-group">
+              <dt><label>Full JSON Trace</label></dt>
+              <dd>
+                <textarea id="devtools-trace-json" class="form-control" placeholder="Trace not generated" readonly></textarea>
+              </dd>
+            </dl>
+            <div class="form-actions">
+              <button type="button" class="btn" data-clipboard-target="#devtools-trace-json">Copy to Clipboard</button>
+            </div>
+          </form>
+
+          <form style="margin-top:32px;">
+            <dl class="form-group">
+              <dt><label>Modified Trace Point</label></dt>
+              <dd>
+                <textarea id="devtools-mod-trace-json" class="form-control" placeholder="Trace not modified" readonly></textarea>
+              </dd>
+            </dl>
+            <div class="form-actions">
+              <button type="button" class="btn" data-clipboard-target="#devtools-mod-trace-json">Copy to Clipboard</button>
+            </div>
+          </form>
+
+          <form style="margin-top:32px">
+            <dl class="form-group">
+              <dt><label>Modified Trace Point Index</label></dt>
+              <dd>
+                <dd><input id="devtools-mod-trace-index" class="form-control input-block" type="number" readonly placeholder="Trace not modified" style="width:100%"></dd>
+              </dd>
+            </dl>
+            <div class="form-actions">
+              <button type="button" class="btn" data-clipboard-target="#devtools-mod-trace-index">Copy to Clipboard</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
     <div class="body-mask"></div>
     <div class="app">
       <div class="mp-controls control-surface">
         <button class="mp-control-button" data-command="trace">Run</button>
         <button class="mp-control-button" data-command="halt" disabled>Halt</button>
-        <button class="mp-control-button" data-command="debug">Debug</button>
+        <button class="mp-control-button" data-command="debug">Dev Tools</button>
         <select class="dropdown">
           <option value="tests" selected>Testing Program</option>
           <option value="hello">Hello World</option>

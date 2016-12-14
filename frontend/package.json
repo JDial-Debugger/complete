@@ -7,10 +7,12 @@
     "start": "gulp main"
   },
   "dependencies": {
+    "clipboard": "^1.5.16",
     "codemirror": "^5.20.2",
     "jquery": "^3.1.1",
     "localforage": "^1.4.3",
     "mousetrap": "^1.6.0",
+    "primer-css": "^4.4.0",
     "superagent": "^3.0.0"
   },
   "devDependencies": {
@@ -32,6 +34,7 @@
   "standard": {
     "parser": "babel-eslint",
     "globals": [
+      "Clipboard",
       "CodeMirror",
       "jQuery",
       "localforage",
@@ -51,7 +54,8 @@
         "jquery": "jquery/dist/jquery.slim.js",
         "localforage": "localforage/dist/localforage.js",
         "mousetrap": "mousetrap/mousetrap.js",
-        "superagent": "superagent/superagent.js"
+        "superagent": "superagent/superagent.js",
+        "clipboard": "clipboard/dist/clipboard.min.js"
       }
     },
     "styles": {
@@ -61,7 +65,8 @@
       "vendors": "vendor.min.css",
       "components": {
         "codemirror": "codemirror/lib/codemirror.css",
-        "codemirror-theme": "codemirror/theme/neat.css"
+        "codemirror-theme": "codemirror/theme/neat.css",
+        "primer": "primer-css/build/build.css"
       }
     },
     "config": {

@@ -1,6 +1,7 @@
 @import '_vars-colors';
 @import '_vars-layout';
 @import '_vars-assets';
+@import '_vars-fonts';
 
 $sprite-grid-unit: 18px;
 
@@ -36,7 +37,8 @@ $sprite-grid-unit: 18px;
   background: none;
   border-style: none;
   font-size: 14px;
-  font-family: inherit;
+  line-height: normal;
+  font-family: $font-sans-serif;
   color: rgba(255, 255, 255, 0.8);
   letter-spacing: 0.5px;
   cursor: pointer;

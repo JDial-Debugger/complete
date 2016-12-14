@@ -39,7 +39,6 @@ class Network {
 
         try {
           parsedTrace = JSON.parse(res.text)
-          window.parsedTrace = parsedTrace
         } catch (err) {
           ajaxFail()
         }
