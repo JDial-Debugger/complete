@@ -16,9 +16,16 @@ $sprite-grid-unit: 18px;
   cursor: default;
 
   .dropdown {
-    margin: 23px 12px;
+    margin: 20px 12px;
     display: block;
     float: right;
+    background-color: $color-dark-gray;
+    color: rgba(255, 255, 255, 0.8);
+
+    &:hover {
+      color: white;
+      cursor: pointer;
+    }
   }
 }
 

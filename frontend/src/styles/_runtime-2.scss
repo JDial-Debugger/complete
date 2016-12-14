@@ -122,6 +122,7 @@ $dot-right-margin: 6px;
         height: $point-height;
         display: block;
         cursor: pointer;
+        font-weight: normal;
 
         &::before {
           content: "";
