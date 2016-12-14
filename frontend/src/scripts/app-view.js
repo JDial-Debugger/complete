@@ -173,6 +173,7 @@ class AppView {
         } else {
           console.log(`loaded builtin program "${dropdownValue}"`)
           this.edv.setProgram(value)
+          this.mcs.trigger('halt', [])
         }
       })
     }
@@ -184,6 +185,7 @@ class AppView {
         } else {
           console.log(`loaded builtin program "${dropdownValue}"`)
           this.edv.setProgram(value)
+          this.mcs.trigger('halt', [])
         }
       })
     }
