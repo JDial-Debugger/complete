@@ -23,9 +23,10 @@ type TraceRequest struct {
 }
 
 type SuggestionRequest struct {
-    FullTrace  string `form:"full_trace" json:"full_trace" binding:"required"`
-    Point      string `form:"modified_point" json:"modified_point" binding:"required"`
-    PointIndex int    `form:"modified_point_index" json:"modified_point_index" binding:"required"`
+    FullTrace    string `form:"full_trace" json:"full_trace" binding:"required"`
+    Point        string `form:"modified_point" json:"modified_point" binding:"required"`
+    PointIndex   int    `form:"modified_point_index" json:"modified_point_index" binding:"required"`
+    FocusedLines []int  `form:"focused_lines" json:"focused_lines"`
 }
 
 func main() {
@@ -181,6 +182,16 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
             filepath.Join(java_dir, "."),
         }, ":")
 
+        focusedLinesStr := ""
+
+        for i, lineNum := range sugReq.FocusedLines {
+            if i > 0 {
+                focusedLinesStr += ","
+            }
+
+            focusedLinesStr += strconv.Itoa(lineNum)
+        }
+
         cmdName := "java"
         cmdArgs := []string{
             "-cp",
@@ -189,6 +200,7 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
             tmpTraceFilename,
             strconv.Itoa(sugReq.PointIndex),
             tmpPointFilename,
+            "[" + focusedLinesStr + "]",
         }
 
         if cmdOut, err = exec.Command(cmdName, cmdArgs...).Output(); err != nil {
