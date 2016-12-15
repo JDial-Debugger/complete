@@ -387,17 +387,29 @@ class RuntimeView extends EventHandler {
             return jQuery(li).find('.edit').val() !== ''
           }).map((li) => {
             let varname = jQuery(li).find('.name').text()
-            let oldValue = parseInt(jQuery(li).find('.value').text())
-            let newValue = parseInt(jQuery(li).find('.edit').val())
+
+            let oldValueStr = jQuery(li).find('.value').text()
+            let oldValue = parseInt()
+
+            let newValueStr = jQuery(li).find('.edit').val()
+            let newValue = parseInt(newValueStr)
 
             if (isNaN(oldValue)) {
-              // TODO: notification that only integers can be accepted RN
               wasError = true
+
+              NotificationView.send('fatal', 'Could not request suggestions', {
+                large: true,
+                code: `"${varname}" is not type INTEGER`
+              }).open()
             }
 
             if (isNaN(newValue)) {
-              // TODO: notification that only integers can be accepted RN
               wasError = true
+
+              NotificationView.send('fatal', 'Could not request suggestions', {
+                large: true,
+                code: `input "${newValueStr}" is not type INTEGER`
+              }).open()
             }
 
             // FIXME: only integers are currently supported
@@ -410,8 +422,6 @@ class RuntimeView extends EventHandler {
 
           if (wasError === false) {
             this.getSuggestions(goals)
-          } else {
-            // TODO: notification that request for suggestions wasn't sent
           }
         }
       })
