@@ -151,6 +151,8 @@ class RuntimeView extends EventHandler {
             throw new Error('call with no return value')
           }
 
+          let returnTypeStr = sanitize(returnData.value.toString())
+
           pointHtml = htmlBuilder([
             // Render only the open tag since the closing tag was rendered
             // when the corresponding "return" trace point was rendered
@@ -177,12 +179,12 @@ class RuntimeView extends EventHandler {
                 htmlBuilder.span('sig-syntax', '('),
                 argsHtml,
                 htmlBuilder.span('sig-syntax', ')'),
-                htmlBuilder.span('sig-syntax', '&xrArr;'),
-                htmlBuilder.span({
+                returnTypeStr !== 'VOID' ? htmlBuilder.span('sig-syntax', '&xrArr;') : '',
+                returnTypeStr !== 'VOID' ? htmlBuilder.span({
                   classes: ['sig-value', 'field', 'sig-return-value'],
                   children: sanitize(returnData.value.toString()),
                   'data-point': sanitize(returnData.index.toString())
-                })
+                }) : ''
               ]
             }),
 
@@ -202,7 +204,7 @@ class RuntimeView extends EventHandler {
           // to the stack of return values so the corresponding "call" trace
           // point can use that value in its function signature
           if (isReturn) {
-            let returnValue = 'void'
+            let returnValue = 'VOID'
 
             try {
               returnValue = point['stack_to_render'][0]['encoded_locals']['__return__']
@@ -475,6 +477,10 @@ class RuntimeView extends EventHandler {
         let locals = topCallstack['encoded_locals'] || {}
         let variablesHtml = Object.keys(locals).reduce((html, localName) => {
           if (locals.hasOwnProperty(localName) === false) {
+            return html
+          }
+
+          if (locals[localName] && locals[localName][0] === 'VOID') {
             return html
           }
 
