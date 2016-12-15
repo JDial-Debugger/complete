@@ -1,7 +1,8 @@
 import NotificationView from './notification-view'
 import EventHandler from './event-handler'
 
-const HL_LINE_CLASS = 'active-line'
+const EXECUTING_LINE_CLASS = 'active-line'
+const FOCUS_LINE_CLASS = 'focus-line'
 
 class EditorView extends EventHandler {
   constructor (wrapperElem, initialProgram = '') {
@@ -26,13 +27,22 @@ class EditorView extends EventHandler {
       smartIndent: false,
       tabSize: 4,
       indentWithTabs: true,
-      electricChars: false
+      electricChars: false,
+      gutters: ['gutter-focus', 'CodeMirror-linenumbers']
     })
+
+    this.focusedLines = []
 
     // Line number of the line currently highlighted. Set to -1 if no line highlighted
     this.highlightedLine = -1 // NOTE: 0-based line count
 
     this.frozen = false
+
+    this.editor.on('gutterClick', (cm, lineNum) => {
+      if (this.frozen === false) {
+        this.toggleLineFocus(lineNum)
+      }
+    })
   }
 
   getProgram () {
@@ -80,8 +90,8 @@ class EditorView extends EventHandler {
 
     const PADDING = 20 // pixels that should be in-view above & below the line
 
-    this.editor.addLineClass(lineNum, 'gutter', HL_LINE_CLASS)
-    this.editor.addLineClass(lineNum, 'background', HL_LINE_CLASS)
+    this.editor.addLineClass(lineNum, 'gutter', EXECUTING_LINE_CLASS)
+    this.editor.addLineClass(lineNum, 'background', EXECUTING_LINE_CLASS)
     this.editor.scrollIntoView({line: lineNum, ch: 0}, PADDING)
     this.highlightedLine = lineNum
   }
@@ -91,9 +101,34 @@ class EditorView extends EventHandler {
       return
     }
 
-    this.editor.removeLineClass(this.highlightedLine, 'gutter', HL_LINE_CLASS)
-    this.editor.removeLineClass(this.highlightedLine, 'background', HL_LINE_CLASS)
+    this.editor.removeLineClass(this.highlightedLine, 'gutter', EXECUTING_LINE_CLASS)
+    this.editor.removeLineClass(this.highlightedLine, 'background', EXECUTING_LINE_CLASS)
     this.highlightedLine = -1
+  }
+
+  toggleLineFocus (lineNum) {
+    let lineInfo = this.editor.lineInfo(lineNum)
+    let focusIndex = this.focusedLines.indexOf(lineNum)
+
+    if (focusIndex > -1) {
+      this.editor.removeLineClass(lineNum, 'gutter', FOCUS_LINE_CLASS)
+      this.editor.removeLineClass(lineNum, 'background', FOCUS_LINE_CLASS)
+      this.focusedLines.splice(focusIndex, 1)
+    } else {
+      this.editor.addLineClass(lineNum, 'gutter', FOCUS_LINE_CLASS)
+      this.editor.addLineClass(lineNum, 'background', FOCUS_LINE_CLASS)
+      this.focusedLines.push(lineNum)
+    }
+  }
+
+  clearFocusedLines () {
+    this.focusedLines.forEach((lineNum) => {
+      this.toggleLineFocus(lineNum)
+    })
+  }
+
+  getFocusedLines () {
+    return this.focusedLines.map(lineNum => lineNum + 1)
   }
 
   makeSuggestion (raw) {

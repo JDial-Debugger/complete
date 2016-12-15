@@ -391,7 +391,7 @@ class RuntimeView extends EventHandler {
             let varname = jQuery(li).find('.name').text()
 
             let oldValueStr = jQuery(li).find('.value').text()
-            let oldValue = parseInt()
+            let oldValue = parseInt(oldValueStr)
 
             let newValueStr = jQuery(li).find('.edit').val()
             let newValue = parseInt(newValueStr)
@@ -451,11 +451,12 @@ class RuntimeView extends EventHandler {
       let wholeStr = JSON.stringify(this.whole)
       let pointStr = JSON.stringify(clone)
       let pointIdx = this.index
+      let focusedLines = [] // This value will be filled in by the AppView
 
       // Make data available to the Debug panel
       DevtoolsView.setModifiedTracePoint(clone, pointIdx)
 
-      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, pointStr, pointIdx)])
+      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, pointStr, pointIdx, focusedLines)])
     }
   }
 

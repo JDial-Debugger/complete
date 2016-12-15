@@ -31,6 +31,11 @@
     line-height: 19px;
   }
 
+  .CodeMirror-gutter,
+  .CodeMirror-linenumbers {
+    cursor: default;
+  }
+
   .CodeMirror-gutter-wrapper.active-line .CodeMirror-linenumber {
     color: white;
   }
@@ -43,5 +48,27 @@
     background-image: url($assets-line-arrow-path);
     background-repeat: no-repeat;
     background-position: left center;
+  }
+
+  .gutter-focus {
+    width: 12px;
+    cursor: default;
+  }
+
+  .CodeMirror-gutter-background.focus-line {
+    cursor: default;
+
+    &::before {
+      content: "●";
+      width: 12px;
+      display: block;
+      position: relative;
+      left: 4px;
+      cursor: default;
+    }
+
+    &.active-line::before {
+      color: white;
+    }
   }
 }

@@ -101,6 +101,8 @@ class AppView {
       this.mcs.startSpinning('trace')
       this.mcs.enableCommands(['halt'])
 
+      payload.focusedLines = this.edv.getFocusedLines()
+
       // Clear any pending notifications
       NotificationView.flush()
 
