@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import constraintfactory.ConstData;
+import constraintfactory.ExternalFunction;
 
 /**
  * An array initializer.  This is an expression like the right hand
@@ -37,15 +38,23 @@ public class ExprArrayInit extends Expression
      * "elem" is one of the children.
      */
     private int dims;
-	private int line;
-
+    public Expression length;
+    
+    public ExprArrayInit(Expression length, int k){
+    	this.length = length;
+    	this.elements = new ArrayList<Expression>();
+    }
+    
     public ExprArrayInit( Expression singleElem) {
         this.elements = new ArrayList<Expression>(1);
+        singleElem.setParent(this);
         elements.add(singleElem);
     }
 
     public ExprArrayInit( List<Expression> elements)
     {
+    	for(Expression e: elements)
+    		e.setParent(this);
         this.elements = elements;
 	// determine dims based on first element.  That the elements
 	// are uniform will be checked in semantic checker.
@@ -81,6 +90,9 @@ public class ExprArrayInit extends Expression
     {
 	StringBuffer sb = new StringBuffer();
 	sb.append("{");
+	if(elements.size() == 0){
+		return "";
+	}
 	for (int i=0; i<elements.size(); i++) {
 	    sb.append(elements.get(i));
 	    if (i!=elements.size()-1) {
@@ -115,4 +127,30 @@ public class ExprArrayInit extends Expression
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public boolean equals(Expression other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		// TODO Auto-generated method stub
+		return externalFuncNames;
+	}
+
+	@Override
+	public void checkAtom() {
+		this.setAtom(false);
+		
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		return new ConstData(null, new ArrayList<>(), index, 0, null,0);
+	}
+
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import constraintfactory.ConstData;
 import constraintfactory.ConstraintFactory;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Context;
 import sketchobj.core.SketchObject;
 import sketchobj.core.Type;
@@ -17,12 +18,13 @@ import sketchobj.expr.Expression;
 public class StmtWhile extends Statement {
 	Expression cond;
 	Statement body;
-	int line;
 	
 	public StmtWhile(Expression cond, Statement body, int i) {
 		this.cond = cond;
+		cond.setParent(this);
 		this.body = body;
-		this.line = i;
+		body.setParent(this);
+		this.setLineNumber(i);
 	}
 
 	/** Returns the loop condition. */
@@ -47,17 +49,24 @@ public class StmtWhile extends Statement {
 			Type t = ((ExprConstant) cond).getType();
 			cond = new ExprFunCall("Const" + index, new ArrayList<Expression>());
 			toAdd.add(body);
-			return new ConstData(t, toAdd, index + 1, value, null,this.line);
+			return new ConstData(t, toAdd, index + 1, value, null,this.getLineNumber());
 		}
 		toAdd.add(cond);
 		toAdd.add(body);
-		return new ConstData(null, toAdd, index, 0, null,this.line);
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
+	}
+	@Override
+	public ConstData replaceConst_Exclude_This(int index, List<Integer> repair_range) {
+		List<SketchObject> toAdd = new ArrayList<SketchObject>();
+		toAdd.add(cond);
+		toAdd.add(body);
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
 	}
 
 	@Override
 	public Context buildContext(Context prectx) {
 		prectx = new Context(prectx);
-		prectx.setLinenumber(this.line);
+		prectx.setLinenumber(this.getLineNumber());
 		Context postctx  = new Context(prectx);
 		this.setPostctx(new Context(postctx));
 		postctx.pushVars(new HashMap<String, Type>());
@@ -74,4 +83,25 @@ public class StmtWhile extends Statement {
 		m.putAll(this.getPostctx().getAllVars());
 		return ((StmtBlock)body).stmts.get(0).addRecordStmt((StmtBlock) body,0,m);
 	}
+
+	@Override
+	public boolean isBasic() {
+		return true;
+	}
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		externalFuncNames = cond.extractExternalFuncs(externalFuncNames);
+		externalFuncNames = body.extractExternalFuncs(externalFuncNames);
+		return externalFuncNames;
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		List<SketchObject> toAdd = new ArrayList<SketchObject>();
+		toAdd.add(cond);
+		toAdd.add(body);
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
+	}
+
 }

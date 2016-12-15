@@ -1,12 +1,14 @@
 package sketchobj.stmts;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import constraintfactory.ConstData;
 import constraintfactory.ConstraintFactory;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Context;
 import sketchobj.core.SketchObject;
 import sketchobj.core.Type;
@@ -19,7 +21,6 @@ public class StmtIfThen extends Statement {
 	private Statement cons, alt;
 	private boolean isSingleFunCall = false;
 	private boolean isSingleVarAssign = false;
-	private int line;
 
 	/**
 	 * Create a new conditional statement, with the specified condition,
@@ -28,9 +29,16 @@ public class StmtIfThen extends Statement {
 	 */
 	public StmtIfThen(Expression cond, Statement cons, Statement alt, int i) {
 		this.cond = cond;
+		cond.setParent(this);
 		this.cons = cons;
+		cons.setParent(this);
 		this.alt = alt;
-		this.line = i;
+		if(alt!=null)
+		alt.setParent(this);
+		this.setLineNumber(i);
+	}
+	public StmtIfThen(Expression cond, Statement cons, Statement alt) {
+		this(cond,cons,alt,0);
 	}
 
 	// @Override
@@ -100,23 +108,33 @@ public class StmtIfThen extends Statement {
 			int value = ((ExprConstant) cond).getVal();
 			Type t = ((ExprConstant) cond).getType();
 			cond = new ExprFunCall("Const" + index, new ArrayList<Expression>());
-			return new ConstData(t, toAdd, index + 1, value,null,this.line);
+			return new ConstData(t, toAdd, index + 1, value,null,this.getLineNumber());
 		}
-		return new ConstData(null, toAdd, index, 0,null,this.line);
+		return new ConstData(null, toAdd, index, 0,null,this.getLineNumber());
 	}
 
 	@Override
+	public ConstData replaceConst_Exclude_This(int index, List<Integer> repair_range) {
+
+		List<SketchObject> toAdd = new ArrayList<SketchObject>();
+		toAdd.add(cons);
+		if (alt != null)
+			toAdd.add(alt);
+		return new ConstData(null, toAdd, index, 0,null,this.getLineNumber());
+	}
+	
+	@Override
 	public Context buildContext(Context prectx) {
 		prectx = new Context(prectx);
-		prectx.setLinenumber(this.line);
+		prectx.setLinenumber(this.getLineNumber());
 		this.setPrectx(prectx);
 		this.setPostctx(prectx);
 		Context postctx = new Context(prectx);
-		postctx.pushVars(new HashMap<String, Type>());
+		postctx.pushNewVars();;
 		postctx = cons.buildContext(postctx);
 		postctx.popVars();
 		if (alt != null) {
-			postctx.pushNewVars();
+			postctx.pushNewVars();;
 			postctx = alt.buildContext(postctx);
 			postctx.popVars();
 		}
@@ -125,7 +143,8 @@ public class StmtIfThen extends Statement {
 
 	@Override
 	public Map<String, Type> addRecordStmt(StmtBlock parent, int index, Map<String, Type> m) {
-
+		List stmts = new ArrayList(parent.stmts);
+		parent.stmts = stmts;
 		parent.stmts.set(index,
 				new StmtBlock(ConstraintFactory.recordState(this.getPrectx().getLinenumber(), this.getPrectx().getAllVars()),this));
 		
@@ -137,5 +156,34 @@ public class StmtIfThen extends Statement {
 		}
 		return m;
 	}
+
+
+
+	@Override
+	public boolean isBasic() {
+		return true;
+	}
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		externalFuncNames = cond.extractExternalFuncs(externalFuncNames);
+		externalFuncNames = cons.extractExternalFuncs(externalFuncNames);
+		if(alt!=null)
+			externalFuncNames = alt.extractExternalFuncs(externalFuncNames);
+		return externalFuncNames ;
+	}
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		List<SketchObject> toAdd = new ArrayList<SketchObject>();
+		cond.setCtx(this.getPostctx());
+		cond.setBoolean(true);
+		toAdd.add(cond);
+		
+		toAdd.add(cons);
+		if (alt != null){
+			toAdd.add(alt);
+		}
+		return new ConstData(null, toAdd, index, 0,null,this.getLineNumber());
+	}
+
 
 }

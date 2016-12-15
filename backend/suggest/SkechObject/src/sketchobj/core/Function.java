@@ -4,7 +4,7 @@ import java.util.*;
 
 import sketchobj.stmts.Statement;
 
-public class Function extends SketchObject {
+public class Function extends SketchNode {
 	public static enum FcnType {
 		// Uninterpreted Function
 		Uninterp("uninterp"),
@@ -49,6 +49,11 @@ public class Function extends SketchObject {
 		this.params = params;
 		this.body = body;
 		this.fcnType = fcnType;
+		body.setParent(this);
+		this.setParent(null);
+	}
+	public Function(String name, Type returnType, List<Parameter> params, Statement body) {
+		this(name, returnType,params,body,FcnType.Static);
 	}
 
 	public Function(FcnHeader head, Statement body) {
@@ -57,6 +62,8 @@ public class Function extends SketchObject {
 		this.params = head.params;
 		this.body = body;
 		this.fcnType = FcnType.Static;
+		body.setParent(this);
+		this.setParent(null);
 	}
 	
 	public Function(FcnHeader head, Statement body, FcnType ft) {
@@ -64,6 +71,8 @@ public class Function extends SketchObject {
 		this.returnType = head.returnType;
 		this.params = head.params;
 		this.body = body;
+		body.setParent(this);
+		this.setParent(null);
 		this.fcnType = ft;
 	}
 	
@@ -93,6 +102,7 @@ public class Function extends SketchObject {
 			if (p.isParameterOutput()) {
 				s += "ref ";
 			}
+			if(p.getType()==null) continue;
 			s += p.getType() + " " + p.getName();
 			notf = true;
 		}
@@ -100,7 +110,7 @@ public class Function extends SketchObject {
 	}
 
 	public String toString() {
-		return fcnType.cCodeName + " " + returnType.toString()+ " " + name + "(" + printParams() + ")" + "{\n"+ body.toString()+ "}";
+		return fcnType.cCodeName + " " + returnType.toString()+ " " + name + "(" + printParams() + ")" + "{\n"+ body.toString()+ "}\n";
 	}
 
 }

@@ -6,7 +6,9 @@ import java.util.Map;
 
 import constraintfactory.ConstData;
 import constraintfactory.ConstraintFactory;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.*;
+import sketchobj.expr.ExprBinary;
 import sketchobj.expr.ExprConstant;
 import sketchobj.expr.ExprFunCall;
 import sketchobj.expr.Expression;
@@ -14,14 +16,17 @@ import sketchobj.expr.Expression;
 public class StmtFor extends Statement {
 	private Expression cond;
 	private Statement init, incr, body;
-	private int line;
 
 	public StmtFor(Statement init, Expression cond, Statement incr, Statement body, boolean isCanonical, int i) {
 		this.init = init;
+		init.setParent(this);
 		this.cond = cond;
+		cond.setParent(this);
 		this.incr = incr;
+		incr.setParent(this);
 		this.body = body;
-		this.line = i;
+		body.setParent(this);
+		this.setLineNumber(i);
 	}
 
 	public String toString() {
@@ -47,15 +52,25 @@ public class StmtFor extends Statement {
 			int value = ((ExprConstant) cond).getVal();
 			Type t = ((ExprConstant) cond).getType();
 			cond = new ExprFunCall("Const" + index, new ArrayList<Expression>());
-			return new ConstData(t, toAdd, index + 1, value, null, this.line);
+			return new ConstData(t, toAdd, index + 1, value, null, this.getLineNumber());
 		}else
 			toAdd.add(cond);
-		return new ConstData(null, toAdd, index, 0, null,this.line);
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
+	}
+	
+
+	@Override
+	public ConstData replaceConst_Exclude_This(int index, List<Integer> repair_range) {
+		List<SketchObject> toAdd = new ArrayList<SketchObject>();
+		toAdd.add(init);
+		toAdd.add(incr);
+		toAdd.add(body);
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
 	}
 
 	@Override
 	public Context buildContext(Context prectx) {
-		prectx.setLinenumber(this.line);
+		prectx.setLinenumber(this.getLineNumber());
 		this.setPrectx(prectx);
 		this.setPostctx(new Context(prectx));
 		Context postctx = new Context(prectx);
@@ -82,6 +97,34 @@ public class StmtFor extends Statement {
 				new ArrayList<String>(init.getPostctx().getAllVars().keySet())), body);
 		body =  new StmtBlock(body,ConstraintFactory.recordState(this.getPostctx().getLinenumber(),
 				new ArrayList<String>(init.getPostctx().getAllVars().keySet())));
-		return ((StmtBlock) body).stmts.get(1).addRecordStmt((StmtBlock) body, 1, m);
+		return ((StmtBlock)((StmtBlock) body).stmts.get(0)).stmts.get(((StmtBlock)((StmtBlock) body).stmts.get(0)).stmts.size()-1).addRecordStmt((StmtBlock) body, 1, m);
 	}
+
+
+
+	@Override
+	public boolean isBasic() {
+		return true;
+	}
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		externalFuncNames = cond.extractExternalFuncs(externalFuncNames);
+		externalFuncNames = init.extractExternalFuncs(externalFuncNames);
+		externalFuncNames = incr.extractExternalFuncs(externalFuncNames);
+		externalFuncNames = body.extractExternalFuncs(externalFuncNames);
+		return externalFuncNames ;
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		this.cond.setBoolean(true);
+		List<SketchObject> toAdd = new ArrayList<SketchObject>();
+		toAdd.add(init);
+		toAdd.add(incr);
+		toAdd.add(body);
+		toAdd.add(cond);
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
+	}
+
 }

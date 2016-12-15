@@ -1,6 +1,10 @@
 package sketchobj.expr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import constraintfactory.ConstData;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Type;
 import sketchobj.core.TypePrimitive;
 
@@ -76,5 +80,28 @@ public class ExprConstInt extends ExprConstant
 	public ConstData replaceConst(int index, String string) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean equals(Expression other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		// TODO Auto-generated method stub
+		return externalFuncNames;
+	}
+
+	@Override
+	public void checkAtom() {
+		this.setAtom(false);
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		return new ConstData(null, new ArrayList<>(), index, 0, null,0);
 	}
 }

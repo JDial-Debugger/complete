@@ -1,9 +1,11 @@
 package sketchobj.stmts;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import constraintfactory.ConstData;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Context;
 import sketchobj.core.Type;
 import sketchobj.expr.Expression;
@@ -190,6 +192,31 @@ public class StmtAssert extends Statement {
 
 		@Override
 		public Context buildContext(Context prectx) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		@Override
+		public boolean isBasic() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public ConstData replaceConst_Exclude_This(int index,List<Integer> repair_range) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public ConstData replaceLinearCombination(int index) {
 			// TODO Auto-generated method stub
 			return null;
 		}

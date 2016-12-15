@@ -2,6 +2,8 @@ package sketchobj.core;
 
 import java.util.List;
 
+import constraintfactory.ConstData;
+
 public class FcnHeader extends SketchObject {
     String name; // or null
 	Type returnType;
@@ -27,6 +29,9 @@ public class FcnHeader extends SketchObject {
     public String getName(){
     	return this.name;
     }
+    public Type getReturnType(){
+    	return this.returnType;
+    }
     public String toString(){
     	String result = "";
     	result += name;
@@ -38,4 +43,9 @@ public class FcnHeader extends SketchObject {
     	result = result + ")";
     	return result;
     }
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -6,9 +6,12 @@ import java.util.Map;
 
 import constraintfactory.ConstData;
 import constraintfactory.ConstraintFactory;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Context;
 import sketchobj.core.SketchObject;
 import sketchobj.core.Type;
+import sketchobj.expr.ExprBinary;
+import sketchobj.expr.ExprConstInt;
 import sketchobj.expr.ExprConstant;
 import sketchobj.expr.ExprFunCall;
 import sketchobj.expr.Expression;
@@ -25,7 +28,6 @@ import sketchobj.expr.Expression;
 public class StmtReturn extends Statement
 {
     Expression value;
-	private int line;
 
     /** Creates a new return statement, with the specified return value
      * (or null). */
@@ -35,10 +37,21 @@ public class StmtReturn extends Statement
 //            value = null;
 //        }
         this.value = value;
-        this.line = line;
+        value.setParent(this);
+        this.setLineNumber(line);
     }
-
-
+    public StmtReturn(Expression value)
+    {
+    	this(value, 0);
+    }
+    public StmtReturn( int line)
+    {
+//        if (value instanceof ExprConstUnit) {
+//            value = null;
+//        }
+    	this.value = null;
+        this.setLineNumber(line);
+    }
 
     /** Returns the return value of this, or null if there is no return
      * value. */
@@ -70,12 +83,15 @@ public class StmtReturn extends Statement
 		return value.replaceConst(index);
 	}
 
-
+	@Override
+	public ConstData replaceConst_Exclude_This(int index, List<Integer> repair_range) {
+		return new ConstData(null, new ArrayList<SketchObject>(), index, 0, null,this.getLineNumber());
+	}
 
 	@Override
 	public Context buildContext(Context prectx) {
 		prectx = new Context(prectx);
-		prectx.setLinenumber(this.line);
+		prectx.setLinenumber(this.getLineNumber());
 		this.setPrectx(new Context(prectx));
 		this.setPostctx(new Context(prectx));
 		return prectx;
@@ -92,13 +108,21 @@ public class StmtReturn extends Statement
 
 
 
-	public int getLine() {
-		return line;
+
+
+	@Override
+	public ConstData replaceLinearCombination(int index){
+		return new ConstData(null, new ArrayList<SketchObject>(), index, 0, null,this.getLineNumber());
 	}
 
 
 
-	public void setLine(int line) {
-		this.line = line;
+	@Override
+	public boolean isBasic() {
+		return true;
+	}
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		return value.extractExternalFuncs(externalFuncNames);
 	}
 }

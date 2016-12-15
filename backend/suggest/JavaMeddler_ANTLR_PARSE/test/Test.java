@@ -1,24 +1,17 @@
-import java.util.Scanner;
-
-public class Main
-{
-	public static int largestGap(int[] a)
-	{
-	    int max = 1; 
-	    a[1] = 10; 
-	    int c = max++; 
-	    int min = 100;  
-	    for(int i=0; i < 4; i++)
-	    { 
-	        if(max < a[i]) 
-	        max = a[i]; 
-	    }
-        return max-min;
-	}
-
-	public static void main(String[] args)
-	{
-	    int x = largestGap( new int[]{ 2, 3, 7, 1 } ); 
-	    System.out.println(x);
-	}		
+public class Main {
+    public static void main(String[] args) {
+        int a = 6;
+		int b = 2;
+		int c = 8;
+		int m = 0;
+		if ((a >= b && a <= c) || (a >= c && a <= b)){
+			m = b;
+		}else if ((b >= a && b <= c) || (b >= c && b <= a)){
+			m = b;
+		}else{
+			m = c;
+		}
+		int z = m + 1 + 2 + 3;
+    }
 }
+

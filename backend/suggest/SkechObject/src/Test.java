@@ -1,10 +1,10 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -12,26 +12,100 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import constraintfactory.ConstraintFactory;
+import constraintfactory.ExternalFunction;
 import javaparser.simpleJavaLexer;
 import javaparser.simpleJavaParser;
 import jsonast.JsonNode;
 import jsonast.Root;
 import jsonparser.jsonLexer;
 import jsonparser.jsonParser;
-import sketchobj.core.FcnHeader;
+import sketchobj.core.ExpressionTuple;
 import sketchobj.core.Function;
 import sketchobj.core.SketchObject;
 import sketchobj.core.TypePrimitive;
 import sketchobj.expr.ExprConstInt;
-import sketchobj.expr.Expression;
 import sketchobj.stmts.Statement;
 import sketchobj.stmts.StmtBlock;
 import visitor.JavaVisitor;
 import visitor.JsonVisitor;
+import bsh.EvalError;
+import bsh.Interpreter;
+import java.math.*;
 
 public class Test {
 
-	// @org.junit.Test
+	
+	@org.junit.Test
+	public void testSimpleCal() throws FileNotFoundException, InterruptedException{
+		String oriTraces = new Scanner(new File("benchmarks/simpleCal/errortrace")).useDelimiter("\\Z").next();
+		Root root = MainEntrance.jsonRootCompile(oriTraces);
+		String code = root.getCode().getCode();
+		code = code.replace("\\n", "\n");
+		code = code.replace("\\t", "\t");
+
+		ANTLRInputStream input = new ANTLRInputStream(code);
+		Function function = (Function) MainEntrance.javaCompile(input, "main");
+		System.out.println(function);
+		//assert s.toString().equals("{7=2}") ;
+	}
+	
+	
+	@org.junit.Test
+	public void testSumupExternal() throws FileNotFoundException, InterruptedException{
+		String oriTraces = new Scanner(new File("benchmarks/sumup_external/errortrace")).useDelimiter("\\Z").next();
+		String correctTrace = new Scanner(new File("benchmarks/sumup_external/correction")).useDelimiter("\\Z").next();
+
+		MainEntrance me = new MainEntrance(oriTraces,correctTrace,15);
+		String s = me.Synthesize().toString();
+		//assert s.toString().equals("{7=2}") ;
+	}
+	
+	@org.junit.Test
+	public void testRange() throws FileNotFoundException, InterruptedException{
+		String oriTraces = new Scanner(new File("benchmarks/sumup/oritrace")).useDelimiter("\\Z").next();
+		String correctTrace = new Scanner(new File("benchmarks/sumup/correction")).useDelimiter("\\Z").next();
+		List<Integer> range = new ArrayList<Integer>();
+		range.add(7);
+		MainEntrance me = new MainEntrance(oriTraces,correctTrace,12);
+		me.setRepairRange(range);
+		String s = me.Synthesize().toString();
+		assert s.toString().equals("{7=2}") ;
+	}
+
+	
+	@org.junit.Test
+	public void testSumUp() throws FileNotFoundException, InterruptedException{
+		String oriTraces = new Scanner(new File("benchmarks/sumup/oritrace")).useDelimiter("\\Z").next();
+		String correctTrace = new Scanner(new File("benchmarks/sumup/correction")).useDelimiter("\\Z").next();
+		
+		MainEntrance me = new MainEntrance(oriTraces,correctTrace,12);
+		me.Synthesize();
+	}
+	
+	@org.junit.Test
+	public void testbsh() throws EvalError, FileNotFoundException, IOException{
+		Interpreter i = new Interpreter();  // Construct an interpreter
+		i.set("foo", 5);                    // Set variables
+		i.set("date", new Date() ); 
+
+		Date date = (Date)i.get("date");    // retrieve a variable
+		
+		// Eval a statement and get the result
+		i.eval("bar = Math.pow(2,2)");             
+		assert i.get("bar").equals("4");
+
+	}
+	
+	@org.junit.Test
+	public void testExternalFunction(){
+		ExternalFunction ef = new ExternalFunction("Math.power","Math.power",2);
+		ef.put(new ExpressionTuple(2,2), new ExprConstInt(4));
+
+		ef.put(new ExpressionTuple(2,3), new ExprConstInt(8));
+		System.out.println(ef.getFunction());
+	}
+	
+	@org.junit.Test
 	public void testJson() throws FileNotFoundException {
 		String content = new Scanner(new File("src/jsonexample")).useDelimiter("\\Z").next();
 		ANTLRInputStream input = new ANTLRInputStream(content);
@@ -39,7 +113,7 @@ public class Test {
 		System.out.println(root.getCode());
 	}
 
-	// @org.junit.Test
+	@org.junit.Test
 	public void testMainEntrance() throws FileNotFoundException, InterruptedException {
 		String oriTraces = new Scanner(new File("src/jsonexample")).useDelimiter("\\Z").next();
 		String correctTrace = new Scanner(new File("src/traceexample")).useDelimiter("\\Z").next();
@@ -48,19 +122,19 @@ public class Test {
 		me.Synthesize();
 	}
 	
-	// @org.junit.Test
+	@org.junit.Test
 	public void test1() {
 		Function f = ConstraintFactory.addConstFun(0, 5, new TypePrimitive(4));
 		// System.out.println(f);
 	}
 
-	// @org.junit.Test
+	@org.junit.Test
 	public void test3() {
 		Statement s = ConstraintFactory.varArrayDecl("t", 5, new TypePrimitive(4));
 		// System.out.println(s);
 	}
 
-	// @org.junit.Test
+	@org.junit.Test
 	public void test4() {
 		List<String> otherVars = new ArrayList<String>();
 		otherVars.add("y");
@@ -69,29 +143,40 @@ public class Test {
 		// System.out.println(s);
 	}
 
-	// @org.junit.Test
+	@org.junit.Test
 	public void testReplaceConst() {
 		ANTLRInputStream input = new ANTLRInputStream(
 				"import java.util.Scanner;public class Main{	public static int largestGap(int[] a)	{	    int max = 1;	    a[1] = 10;	    int c = max++;	    int min = 100; 	    for(int i=0; i < 4; i++)	    {	        if(max < a[i])	        max = a[i];	    }        return max-min;	}	public static void main(String[] args)	{	    int x = largestGap( new int[]{ 2, 3, 7, 1 } );	    System.out.println(x);	}	}");
-		Function f = (Function) compile(input,"largestGap");
-		Statement s = f.getBody();
-		System.out.println(s);
+		//Function f = (Function) compile(input,"largestGap");
+		//Statement s = f.getBody();
+		//System.out.println(s);
 		// System.out.println(ConstraintFactory.repalceConst(s));
 		// System.out.println(s);
+	
 	}
 
-	// @org.junit.Test
+	@org.junit.Test
 	public void testRecordStmt() {
 		ANTLRInputStream input = new ANTLRInputStream(
 				"int largestGap(int[] a){ int max = 1; a[1] = 10; c = max++; int min = 100;  for(int i=0; i < a.Length; i++){ if(max < a[i]) max = a[i]; }return max-min;}");
 		Function f = (Function) compile(input,"main");
 		Statement s = f.getBody();
-		ConstraintFactory.repalceConst(s);
-		ConstraintFactory.addRecordStmt((StmtBlock) s);
+		ConstraintFactory.replaceConst(s);
+		//ConstraintFactory.addRecordStmt((StmtBlock) s);
 		// System.out.println(s);
 	}
+	
+	@org.junit.Test
+	public void testFileIO(){
+		
+		SliceUtil su = SliceUtil.makeSliceUtilFromFilename("experimentsrc/CalcStatic.java");
+		ArrayList<Integer> l = su.get_slice_line_nums("CalcStatic", "main", 54, "top");
+		for(int n : l){
+			System.out.println(n);
+		}
+	}
 
-/*	// @org.junit.Test
+/*	@org.junit.Test
 	public void testSimpleExample() throws InterruptedException {
 		System.out.println();
 		System.out.println("testSimpleExample:");
@@ -139,7 +224,7 @@ public class Test {
 		System.out.println(CallSketch.CallByString(script));
 	}
 
-	// @org.junit.Test
+	@org.junit.Test
 	public void testSumUp() throws InterruptedException {
 		System.out.println();
 		System.out.println("testSumUp:");
@@ -207,7 +292,7 @@ public class Test {
 		//System.out.println(CallSketch.CallByString(script));
 	}
 
-	// @org.junit.Test
+	@org.junit.Test
 	public void testLargestGap() throws InterruptedException {
 		System.out.println();
 		System.out.println("testLargestGap:");
@@ -317,5 +402,14 @@ public class Test {
 		jsonParser parser = new jsonParser(tokens);
 		ParseTree tree = parser.json();
 		return new JsonVisitor().visit(tree);
+	}
+	
+	@org.junit.Test
+	public void testMedian1() throws FileNotFoundException, InterruptedException{
+		String oriTraces = new Scanner(new File("benchmarks/median1/median-test1")).useDelimiter("\\Z").next();
+		String correctTrace = new Scanner(new File("benchmarks/median1/median-target1")).useDelimiter("\\Z").next();
+		MainEntrance me = new MainEntrance(oriTraces,correctTrace,8);
+		String res = me.Synthesize().toString();
+		System.out.println(res);
 	}
 }

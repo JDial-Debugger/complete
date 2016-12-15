@@ -1,5 +1,7 @@
 package sketchobj.core;
 
+import java.util.List;
+
 import constraintfactory.ConstData;
 
 public abstract class SketchObject {
@@ -18,5 +20,14 @@ public abstract class SketchObject {
 		// TODO Auto-generated method stub
 		return new ConstData(index,this.line);
 	}
+
+	public ConstData replaceConst(int index, List<Integer> repair_range) {
+		return null;
+	}
+
+	public ConstData replaceLinearCombination(int index, List<Integer> allowRange) {
+		return null;
+	}
+	public abstract ConstData replaceLinearCombination(int index);
 	
 }

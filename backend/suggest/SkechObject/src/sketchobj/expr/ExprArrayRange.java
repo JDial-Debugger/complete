@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import constraintfactory.ConstData;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.SketchObject;
 import sketchobj.core.Type;
 
@@ -229,6 +230,28 @@ public class ExprArrayRange extends Expression
 	@Override
 	public ConstData replaceConst(int index) {
 		// TODO Auto-generated method stub
-		return this.replaceConst(index, null);
+		return this.replaceConst(index, "");
+	}
+
+	@Override
+	public boolean equals(Expression other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		// TODO Auto-generated method stub
+		return externalFuncNames;
+	}
+
+	@Override
+	public void checkAtom() {
+		this.setAtom(true);
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		return new ConstData(null, new ArrayList<>(), index, 0, null,0);
 	}
 }

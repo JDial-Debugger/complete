@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import constraintfactory.ConstData;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Context;
 import sketchobj.core.Type;
 
@@ -15,6 +16,8 @@ public class StmtBlock extends Statement {
 	public List<Statement> stmts;
 
 	public StmtBlock(List<? extends Statement> stmts) {
+		for(Statement s:stmts)
+			s.setParent(this);
 		this.stmts = Collections.unmodifiableList(stmts);
 	}
 
@@ -27,6 +30,8 @@ public class StmtBlock extends Statement {
 		List<Statement> lst = new ArrayList<Statement>(2);
 		lst.add(stmt1);
 		lst.add(stmt2);
+		stmt1.setParent(this);
+		stmt2.setParent(this);
 		this.stmts = Collections.unmodifiableList(lst);
 	}
 
@@ -67,6 +72,11 @@ public class StmtBlock extends Statement {
 	public ConstData replaceConst(int index) {
 		return new ConstData(null, stmts, index, 0,null, this.getLineNumber());
 	}
+	
+	@Override
+	public ConstData replaceConst_Exclude_This(int index,List<Integer> repair_range) {
+		return new ConstData(null, stmts, index, 0,null, this.getLineNumber());
+	}
 
 	@Override
 	public Context buildContext(Context prectx) {
@@ -89,4 +99,23 @@ public class StmtBlock extends Statement {
 		}
 		return m;
 	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index){
+		return new ConstData(null,stmts,index,0,null,this.getLineNumber());
+	}
+
+	@Override
+	public boolean isBasic() {
+		return false;
+	}
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		for(Statement s: stmts){
+			externalFuncNames = s.extractExternalFuncs(externalFuncNames);
+		}
+		return externalFuncNames;
+	}
+
 }

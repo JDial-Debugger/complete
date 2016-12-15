@@ -10,9 +10,14 @@ import java.util.Vector;
 
 import constraintfactory.ConstData;
 import constraintfactory.ConstraintFactory;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Context;
 import sketchobj.core.SketchObject;
 import sketchobj.core.Type;
+import sketchobj.core.TypeArray;
+import sketchobj.core.TypePrimitive;
+import sketchobj.expr.ExprBinary;
+import sketchobj.expr.ExprConstInt;
 import sketchobj.expr.ExprConstant;
 import sketchobj.expr.ExprFunCall;
 import sketchobj.expr.ExprVar;
@@ -22,7 +27,6 @@ public class StmtVarDecl extends Statement {
 	private List<Type> types;
 	private List<String> names;
 	private List<Expression> inits;
-	private int line;
 
 	/**
 	 * Create a new variable declaration with corresponding lists of types,
@@ -51,7 +55,11 @@ public class StmtVarDecl extends Statement {
 		this.types = new java.util.ArrayList<Type>(types);
 		this.names = new java.util.ArrayList<String>(names);
 		this.inits = new java.util.ArrayList<Expression>(inits);
-		this.line = i;
+		for(Expression e: inits){
+			if(e!=null)
+			e.setParent(this);
+		}
+		this.setLineNumber(i);
 	}
 
 	/**
@@ -73,7 +81,7 @@ public class StmtVarDecl extends Statement {
 		this(Collections.singletonList(type), Collections.singletonList(name), Collections.singletonList(init),i);
 	}
 
-	public StmtVarDecl(Vector<VarDeclEntry> next) {
+/*	public StmtVarDecl(Vector<VarDeclEntry> next) {
 		this.types = new Vector<Type>(next.size());
 		this.names = new Vector<String>(next.size());
 		this.inits = new Vector<Expression>(next.size());
@@ -84,7 +92,7 @@ public class StmtVarDecl extends Statement {
 			this.inits.add(e.getInit());
 		}
 	}
-
+*/
 	/**
 	 * Get the type of the nth variable declared by this.
 	 *
@@ -322,27 +330,34 @@ public class StmtVarDecl extends Statement {
 				if (inits.get(i) instanceof ExprConstant) {
 					int value = ((ExprConstant) inits.get(i)).getVal();
 					Type t = ((ExprConstant) inits.get(i)).getType();
-					inits.set(i, new ExprFunCall("Const" + index, new ArrayList<Expression>()));
+					inits.set(i, new ExprFunCall("Const" + index, new ArrayList<Expression>(), null));
 
-					return new ConstData(t, toAdd, index + 1, value, names.get(i),this.line);
+					return new ConstData(t, toAdd, index + 1, value, names.get(i),this.getLineNumber());
 				} else {
 					toAdd.add(inits.get(i));
 				}
 			}
 		}
-		return new ConstData(null, toAdd, index, 0, null,this.line);
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
+	}
+	
+
+	@Override
+	public ConstData replaceConst_Exclude_This(int index, List<Integer> repair_range) {
+		List<SketchObject> toAdd = new ArrayList<SketchObject>();
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
 	}
 
 	@Override
 	public Context buildContext(Context prectx) {
 		prectx = new Context(prectx);
-		prectx.setLinenumber(this.line);
+		prectx.setLinenumber(this.getLineNumber());
 		this.setPrectx(prectx);
 		Context postctx = new Context(prectx);
 		for (int i = 0; i < names.size(); i++) {
 			postctx.addVar(names.get(i), types.get(i));
 		}
-		postctx.setLinenumber(this.line);
+		postctx.setLinenumber(this.getLineNumber());
 		this.setPostctx(new Context(postctx));
 		return postctx;
 	}
@@ -356,4 +371,68 @@ public class StmtVarDecl extends Statement {
 		m.putAll(this.getPostctx().getAllVars());
 		return m;
 	}
+
+
+
+	@Override
+	public boolean isBasic() {
+		return true;
+	}
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		for(int i = 0; i < inits.size(); i++){
+			if(inits.get(i)==null)
+				continue;
+			externalFuncNames = inits.get(i).extractExternalFuncs(externalFuncNames);
+		}
+		return externalFuncNames;
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		List<SketchObject> toAdd = new ArrayList<SketchObject>();
+		if (this.inits.size() != 0) {
+			for (int i = 0; i < inits.size(); i++) {
+				Integer primaryIndex = -1;
+				inits.get(i).checkAtom();
+				inits.get(i).setLCadded(true);
+				Type t = this.getPostctx().getAllVars().get(this.names.get(i).toString());
+				if(inits.get(i).isAtom()){
+					inits.set(i,new ExprBinary(new ExprFunCall("Coeff"+index, new ArrayList<Expression>()),"*",inits.get(i)));
+					primaryIndex = index;
+					index++;
+				}
+				else{
+					inits.get(i).setT(t);
+					inits.get(i).setCtx(this.getPrectx());
+					toAdd.add(inits.get(i));
+				}
+				List<Integer> liveVarsIndexSet = new ArrayList<Integer>();
+				List<String> liveVarsNameSet = new ArrayList<String>();
+				if((t instanceof TypePrimitive) && ((TypePrimitive)t).getType() == 1){
+					inits.get(i).setBoolean(true);;
+					return new ConstData(null, new ArrayList<SketchObject>(), index, 0, null,this.getLineNumber());
+				}
+				if(t instanceof TypeArray){
+							return new ConstData(null, new ArrayList<SketchObject>(), index, 0, null,this.getLineNumber());
+				}
+				List<String> vars = new ArrayList<String>(this.getPrectx().getAllVars().keySet());
+				for(String v: vars){
+					if(((TypePrimitive)this.getPrectx().getAllVars().get(v)).getType() != ((TypePrimitive)t).getType())
+						continue;
+					Expression newTerm = new ExprBinary(new ExprFunCall("Coeff"+index, new ArrayList<Expression>()),"*",new ExprVar(v,t));
+					inits.set(i,new ExprBinary(inits.get(i),"+",newTerm));
+					liveVarsIndexSet.add(index);
+					liveVarsNameSet.add(v);
+					index++;
+				}
+				inits.set(i,new ExprBinary(inits.get(i), "+", new ExprFunCall("Coeff" + index, new ArrayList<Expression>())));
+				index++;
+				return new ConstData(t, toAdd,index,0,null,this.getLineNumber(),liveVarsIndexSet,liveVarsNameSet,primaryIndex);
+			}
+		}
+		return new ConstData(null, toAdd, index, 0, null,this.getLineNumber());
+	}
+
 }

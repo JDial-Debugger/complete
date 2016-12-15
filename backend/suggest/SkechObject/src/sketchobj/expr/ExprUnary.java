@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import constraintfactory.ConstData;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.SketchObject;
 import sketchobj.core.Type;
 
@@ -60,6 +61,7 @@ public class ExprUnary extends Expression
     {
         this.op = op;
         this.expr = expr;
+        expr.setParent(this);
         this.line = line;
     }
 
@@ -152,5 +154,28 @@ public class ExprUnary extends Expression
 			return new ConstData(t, toAdd, index + 1, value,string,this.line);
 		}
 		return new ConstData(null, toAdd, index, 0,string,this.line);
+	}
+
+	@Override
+	public boolean equals(Expression other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		externalFuncNames = expr.extractExternalFuncs(externalFuncNames);
+		return externalFuncNames;
+	}
+
+	@Override
+	public void checkAtom() {
+		this.setAtom(this.expr.isAtom());
+		
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		return new ConstData(null, new ArrayList<>(), index, 0, null,0);
 	}
 }

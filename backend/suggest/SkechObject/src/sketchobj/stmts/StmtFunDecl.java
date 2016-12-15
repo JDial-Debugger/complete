@@ -1,8 +1,10 @@
 package sketchobj.stmts;
 
+import java.util.List;
 import java.util.Map;
 
 import constraintfactory.ConstData;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Context;
 import sketchobj.core.Function;
 import sketchobj.core.Type;
@@ -39,6 +41,31 @@ public class StmtFunDecl extends Statement {
 
 	@Override
 	public Map<String, Type> addRecordStmt(StmtBlock parent, int index, Map<String, Type> m) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public boolean isBasic() {
+		return false;
+	}
+
+	@Override
+	public ConstData replaceConst_Exclude_This(int index, List<Integer> repair_range) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -1,6 +1,10 @@
 package sketchobj.expr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import constraintfactory.ConstData;
+import constraintfactory.ExternalFunction;
 import sketchobj.core.Type;
 
 public class ExprField extends Expression
@@ -17,12 +21,14 @@ public class ExprField extends Expression
      * named field of the specified expression. */
     public ExprField( Expression left, String name, boolean hole)
     {
+    	left.setParent(this);
         this.left = left;
         this.name = name;
         this.hole = hole;
     }
 
     public ExprField( Expression left, String name) {
+    	left.setParent(this);
         this.left = left;
         this.name = name;
         this.hole = false;
@@ -96,5 +102,28 @@ public class ExprField extends Expression
 	public ConstData replaceConst(int index, String string) {
 		// TODO Auto-generated method stub
 		return new ConstData(index,string,this.line);
+	}
+
+	@Override
+	public boolean equals(Expression other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public List<ExternalFunction> extractExternalFuncs(List<ExternalFunction> externalFuncNames) {
+		return externalFuncNames;
+	}
+
+	@Override
+	public void checkAtom() {
+		this.setAtom(true);
+		
+	}
+
+	@Override
+	public ConstData replaceLinearCombination(int index) {
+		return new ConstData(null, new ArrayList<>(), index, 0, null,0);
 	}
 }
