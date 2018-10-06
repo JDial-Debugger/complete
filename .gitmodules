@@ -1,0 +1,3 @@
+[submodule "backend/suggest/JDial-debugger"]
+	path = backend/suggest/JDial-debugger
+	url = git@github.com:Herbping/JDial-debugger.git

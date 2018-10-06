@@ -2,12 +2,14 @@ import NotificationView from './notification-view'
 
 class Network {
   static getTrace (payload, cb) {
+    console.log("payload:", payload);
+    console.log("cb:", cb);
     const ajaxDone = (res) => {
       return void cb(null, res)
     }
 
     const ajaxFail = (err) => {
-      let notif = NotificationView.send('fatal', 'Network error getting trace', {
+      let notif = NotificationView.send('fatal', 'Network error getting trace2', {
         large: true,
         details: 'Trying again in a moment will likely fix this issue.',
         actions: [
@@ -52,9 +54,11 @@ class Network {
     const ajaxDone = (res) => {
       return void cb(null, res)
     }
+    console.log("payload:", payload);
+    console.log("cb:", cb);
 
     const ajaxFail = (err) => {
-      let notif = NotificationView.send('fatal', 'Network error getting trace', {
+      let notif = NotificationView.send('fatal', 'Network error getting trace1', {
         large: true,
         details: 'Trying again in a moment will likely fix this issue.',
         actions: [
