@@ -52,6 +52,7 @@ class Network {
 
   static getSuggestion (payload, cb) {
     const ajaxDone = (res) => {
+      console.log("Response: ", res)
       return void cb(null, res)
     }
     console.log("payload:", payload);
@@ -78,7 +79,7 @@ class Network {
 
       notif.open()
     }
-
+    console.log('payload:', payload.stringify())
     superagent
     .post('/suggest')
     .send(payload.stringify())
@@ -86,6 +87,7 @@ class Network {
       if (err || res.ok !== true) {
         ajaxFail(err)
       } else {
+        console.log('response to post', res)
         ajaxDone(res.text)
       }
     })

@@ -177,9 +177,10 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
 
         var classpath = strings.Join([]string{
             filepath.Join(java_dir, "bin"),
-            filepath.Join(java_dir, "JavaMeddler_ANTLR_PARSE/*"),
-            filepath.Join(java_dir, "SkechObject/lib/*"),
+            filepath.Join(java_dir, "JDial-debugger/JavaMeddler_ANTLR_PARSE/*"),
+            filepath.Join(java_dir, "JDial-debugger/SkechObject/lib/*"),
             filepath.Join(java_dir, "."),
+            filepath.Join(java_dir, "JDial-debugger/"),
         }, ":")
 
         focusedLinesStr := ""
@@ -191,6 +192,8 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
 
             focusedLinesStr += strconv.Itoa(lineNum)
         }
+        println(tmpTraceFilename)
+        println(tmpPointFilename)
 
         cmdName := "java"
         cmdArgs := []string{
@@ -212,6 +215,7 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
             glog.Error(err)
             return
         }
+        //println(string(cmdOut))
 
         c.String(http.StatusOK, string(cmdOut))
     }

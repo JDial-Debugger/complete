@@ -14,19 +14,19 @@ public class QDEntry {
             whole = new Scanner(new File(wholeFilename)).useDelimiter("\\Z").next();
             part = new Scanner(new File(partFilename)).useDelimiter("\\Z").next();
         } catch (Exception e) {
-            System.err.println("failed with I/O error");
+            System.out.println("failed with I/O error");
             return;
         }
 
         MainEntrance ent = new MainEntrance(whole, part, offset);
-        
+
         try {
-            ent.Synthesize();
+            System.out.println("mapping:" + ent.Synthesize());
         } catch (InterruptedException e) {
-            System.err.println("failed with interrupted error");
+            System.out.println("failed with interrupted error");
             return;
         } catch (Exception e) {
-            System.err.println("failed with unknown error");
+            System.out.println(e.getMessage());
             e.printStackTrace();
             return;
         }

@@ -133,6 +133,7 @@ class EditorView extends EventHandler {
 
   makeSuggestion (raw) {
     let matches = raw.match(/\{([^\n]*)\}/)
+    console.log("matches: ", matches)
 
     if (matches === null || (matches[1] && matches[1].length === 0)) {
       console.error(`RAW SUGGESTION: ${raw}`)

@@ -22,7 +22,7 @@ int[8] cArray = {0,0,0,0,0,0,0,0};
 int cfinal = 0;
 int finalcount = 0;
 
- int SimpleJava(){
+ int SimpleJava1(){
 int count = -1;
 int linehit = 0;
 (count)++;
