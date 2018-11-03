@@ -107,7 +107,6 @@ class AppView {
       NotificationView.flush()
 
       const getSuggestion = (err, raw) => {
-        console.log("Raw: ", raw)
         this.requestPending = false
 
         // If the "requestCancelled" field has been set between when the

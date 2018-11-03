@@ -132,6 +132,7 @@ class EditorView extends EventHandler {
   }
 
   makeSuggestion (raw) {
+    console.log('makeSuggestion EV raw: ', raw)
     let matches = raw.match(/\{([^\n]*)\}/)
     console.log("matches: ", matches)
 

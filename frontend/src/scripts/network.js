@@ -2,8 +2,6 @@ import NotificationView from './notification-view'
 
 class Network {
   static getTrace (payload, cb) {
-    console.log("payload:", payload);
-    console.log("cb:", cb);
     const ajaxDone = (res) => {
       return void cb(null, res)
     }
@@ -52,11 +50,8 @@ class Network {
 
   static getSuggestion (payload, cb) {
     const ajaxDone = (res) => {
-      console.log("Response: ", res)
       return void cb(null, res)
     }
-    console.log("payload:", payload);
-    console.log("cb:", cb);
 
     const ajaxFail = (err) => {
       let notif = NotificationView.send('fatal', 'Network error getting trace1', {
@@ -79,7 +74,7 @@ class Network {
 
       notif.open()
     }
-    console.log('payload:', payload.stringify())
+  //  console.log('payload:', payload.stringify())
     superagent
     .post('/suggest')
     .send(payload.stringify())
@@ -87,7 +82,6 @@ class Network {
       if (err || res.ok !== true) {
         ajaxFail(err)
       } else {
-        console.log('response to post', res)
         ajaxDone(res.text)
       }
     })
