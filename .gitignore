@@ -1,8 +1,9 @@
 .vagrant
 frontend/node_modules
 frontend/.sass-cache
-backend/suggest/SkechObject/lib/sketch-1.6.7
-backend/suggest/SkechObject/lib/sketch-1.6.7.linux-x86.tar.gz
-backend/suggest/SkechObject/tmp
+backend/suggest/JDial-debugger/SkechObject/lib/sketch-1.6.7
+backend/suggest/JDial-debugger/SkechObject/lib/sketch-1.6.7.linux-x86.tar.gz
+backend/suggest/JDial-debugger/SkechObject/tmp
+backend/suggest/bin
 *.js.map
 tmp
