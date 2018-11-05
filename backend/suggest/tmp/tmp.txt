@@ -133,12 +133,12 @@ return -1;
 }
 
 
-int[12] lineArray;
-int[12] SimpleJavaaArray = {0,0,0,0,0,0,0,0,0,0,0,0};
-int[12] SimpleJavazArray = {0,0,0,0,0,0,0,0,0,0,0,0};
-int[12] SimpleJavabArray = {0,0,0,0,0,0,0,0,0,0,0,0};
-int[12] SimpleJavavariableBOIArray = {0,0,0,0,0,0,0,0,0,0,0,0};
-int[12] SimpleJavacArray = {0,0,0,0,0,0,0,0,0,0,0,0};
+int[10] lineArray;
+int[10] SimpleJavaaArray = {0,0,0,0,0,0,0,0,0,0};
+int[10] SimpleJavazArray = {0,0,0,0,0,0,0,0,0,0};
+int[10] SimpleJavabArray = {0,0,0,0,0,0,0,0,0,0};
+int[10] SimpleJavavariableBOIArray = {0,0,0,0,0,0,0,0,0,0};
+int[10] SimpleJavacArray = {0,0,0,0,0,0,0,0,0,0};
 
 
 int bfinal = 0;
@@ -178,6 +178,13 @@ SimpleJavaaArray[count] = a;
 SimpleJavazArray[count] = z;
 SimpleJavabArray[count] = b;
 SimpleJavavariableBOIArray[count] = variableBOI;
+(linehit)++;
+if(linehit == (??)){
+bfinal = b;
+finalcount = count;
+return 0;
+}
+
 
 int c = (((Coeff12()) * a) + ((Coeff11()) * b)) + ((Coeff9()) * (Coeff10()));
 
@@ -188,13 +195,6 @@ SimpleJavazArray[count] = z;
 SimpleJavabArray[count] = b;
 SimpleJavavariableBOIArray[count] = variableBOI;
 SimpleJavacArray[count] = c;
-(linehit)++;
-if(linehit == (??)){
-bfinal = b;
-finalcount = count;
-return 0;
-}
-
 
 return c;
 
@@ -203,17 +203,15 @@ return c;
 harness void Constraint(){
 int SyntacticDistance = 0;
 int SemanticDistance = 0;
-int[6] oringianlaArray = {0,0,2,2,2,2};
-int[6] oringianlbArray = {0,0,0,0,3,3};
-int[6] oringianlcArray = {0,0,0,0,0,5};
-int[6] oringianlzArray = {0,0,0,11,11,11};
-int[6] oringianlvariableBOIArray = {0,45,45,45,45,45};
-int correctFinal_b = 11;
+int[5] oringianlaArray = {0,0,2,2,2};
+int[5] oringianlbArray = {0,0,0,0,3};
+int[5] oringianlzArray = {0,0,0,11,11};
+int[5] oringianlvariableBOIArray = {0,45,45,45,45};
+int correctFinal_b = 13;
 SimpleJava();
-for(int i = 0; i < 6; (i)++){
+for(int i = 0; i < 5; (i)++){
 SemanticDistance += (SimpleJavaaArray[i]) != (oringianlaArray[i]);
 SemanticDistance += (SimpleJavabArray[i]) != (oringianlbArray[i]);
-SemanticDistance += (SimpleJavacArray[i]) != (oringianlcArray[i]);
 SemanticDistance += (SimpleJavazArray[i]) != (oringianlzArray[i]);
 SemanticDistance += (SimpleJavavariableBOIArray[i]) != (oringianlvariableBOIArray[i]);
 }
