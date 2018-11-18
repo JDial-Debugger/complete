@@ -34,6 +34,7 @@ func main() {
 
     // Ensure that the PORT environment variable is set before proceeding
     if port = os.Getenv("PORT"); port == "" {
+	println(port)
         glog.Fatal("$PORT must be set")
     }
 
@@ -85,6 +86,8 @@ func handleTrace(c *gin.Context) {
         "backend/trace/bin:backend/trace/packages/*",
         "GenerateTrace",
     )
+    //cmd.Env = os.Environ()
+    //cmd.Env = append(cmd.Env, "CLASSPATH=/vagrant/backend/trace/bin:/vagrant/backend/trace/packages/*")
 
     // In the HTTP request was a string containing Java source code. The Java
     // tracing program expects this data to be input via standard input. Pass
@@ -104,7 +107,8 @@ func handleTrace(c *gin.Context) {
 
     // Log any errors emitted during the execution of the Java tracing program
     if err != nil {
-        glog.Error(err)
+      println(err)
+        glog.Error("ERROR :0")
     }
 
     // Return that string as the HTTP response

@@ -21,7 +21,7 @@ public class QDEntry {
         MainEntrance ent = new MainEntrance(whole, part, offset);
 
         try {
-            System.out.println("mapping:" + ent.Synthesize());
+            ent.Synthesize();
         } catch (InterruptedException e) {
             System.out.println("failed with interrupted error");
             return;

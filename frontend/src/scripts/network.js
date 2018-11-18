@@ -32,6 +32,8 @@ class Network {
     .post('/trace')
     .send(payload.stringify())
     .end((err, res) => {
+      console.log('response', res)
+      console.log('error', err)
       if (err || res.ok !== true) {
         ajaxFail(err)
       } else {

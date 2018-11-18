@@ -1,8 +1,6 @@
 bit line3change = 0;
 bit line4change = 0;
 bit line5change = 0;
-bit line6change = 0;
-bit line7change = 0;
 
 bit coeff0change = ??;
  int Coeff0(){
@@ -45,25 +43,17 @@ return coeff3change;
 bit coeff4change = ??;
  int Coeff4(){
 if(coeff4change == 0){
-return 0;}
+return 1;}
 
 if(??){
-return 1;}
+return 0;}
 
 return -1;
 }
 
-int coeff5change = ??;
+bit coeff5change = ??;
  int Coeff5(){
-if(??){
-return 0;}
-
-return coeff5change;
-}
-
-bit coeff6change = ??;
- int Coeff6(){
-if(coeff6change == 0){
+if(coeff5change == 0){
 return 0;}
 
 if(??){
@@ -72,12 +62,23 @@ return 1;}
 return -1;
 }
 
-int coeff7change = ??;
- int Coeff7(){
+int coeff6change = ??;
+ int Coeff6(){
 if(??){
 return 0;}
 
-return coeff7change;
+return coeff6change;
+}
+
+bit coeff7change = ??;
+ int Coeff7(){
+if(coeff7change == 0){
+return 1;}
+
+if(??){
+return 0;}
+
+return -1;
 }
 
 bit coeff8change = ??;
@@ -91,57 +92,14 @@ return 0;}
 return -1;
 }
 
-bit coeff9change = ??;
- int Coeff9(){
-if(coeff9change == 0){
-return 0;}
 
-if(??){
-return 1;}
-
-return -1;
-}
-
-int coeff10change = ??;
- int Coeff10(){
-if(??){
-return 0;}
-
-return coeff10change;
-}
-
-bit coeff11change = ??;
- int Coeff11(){
-if(coeff11change == 0){
-return 1;}
-
-if(??){
-return 0;}
-
-return -1;
-}
-
-bit coeff12change = ??;
- int Coeff12(){
-if(coeff12change == 0){
-return 1;}
-
-if(??){
-return 0;}
-
-return -1;
-}
+int[4] lineArray;
+int[4] SimpleJavaaArray = {0,0,0,0};
+int[4] SimpleJavabArray = {0,0,0,0};
+int[4] SimpleJavacArray = {0,0,0,0};
 
 
-int[10] lineArray;
-int[10] SimpleJavaaArray = {0,0,0,0,0,0,0,0,0,0};
-int[10] SimpleJavazArray = {0,0,0,0,0,0,0,0,0,0};
-int[10] SimpleJavabArray = {0,0,0,0,0,0,0,0,0,0};
-int[10] SimpleJavavariableBOIArray = {0,0,0,0,0,0,0,0,0,0};
-int[10] SimpleJavacArray = {0,0,0,0,0,0,0,0,0,0};
-
-
-int bfinal = 0;
+int afinal = 0;
 int finalcount = 0;
 int count = -1;
  int SimpleJava(){
@@ -149,51 +107,32 @@ int linehit = 0;
 (count)++;
 lineArray[count] = 3;
 
-int variableBOI = 45 + ((Coeff0()) * (Coeff1()));
+int a = 2 + ((Coeff0()) * (Coeff1()));
 
 (count)++;
 lineArray[count] = 4;
-SimpleJavavariableBOIArray[count] = variableBOI;
-
-int a = 2 + ((Coeff2()) * (Coeff3()));
-
-(count)++;
-lineArray[count] = 5;
 SimpleJavaaArray[count] = a;
-SimpleJavavariableBOIArray[count] = variableBOI;
-
-int z = 11 + ((Coeff4()) * (Coeff5()));
-
-(count)++;
-lineArray[count] = 6;
-SimpleJavaaArray[count] = a;
-SimpleJavazArray[count] = z;
-SimpleJavavariableBOIArray[count] = variableBOI;
-
-int b = (((Coeff8()) * a) + 1) + ((Coeff6()) * (Coeff7()));
-
-(count)++;
-lineArray[count] = 7;
-SimpleJavaaArray[count] = a;
-SimpleJavazArray[count] = z;
-SimpleJavabArray[count] = b;
-SimpleJavavariableBOIArray[count] = variableBOI;
 (linehit)++;
 if(linehit == (??)){
-bfinal = b;
+afinal = a;
 finalcount = count;
 return 0;
 }
 
 
-int c = (((Coeff12()) * a) + ((Coeff11()) * b)) + ((Coeff9()) * (Coeff10()));
+int b = (((Coeff4()) * a) + 1) + ((Coeff2()) * (Coeff3()));
 
 (count)++;
-lineArray[count] = 8;
+lineArray[count] = 5;
 SimpleJavaaArray[count] = a;
-SimpleJavazArray[count] = z;
 SimpleJavabArray[count] = b;
-SimpleJavavariableBOIArray[count] = variableBOI;
+
+int c = (((Coeff8()) * a) + ((Coeff7()) * b)) + ((Coeff5()) * (Coeff6()));
+
+(count)++;
+lineArray[count] = 6;
+SimpleJavaaArray[count] = a;
+SimpleJavabArray[count] = b;
 SimpleJavacArray[count] = c;
 
 return c;
@@ -203,20 +142,14 @@ return c;
 harness void Constraint(){
 int SyntacticDistance = 0;
 int SemanticDistance = 0;
-int[5] oringianlaArray = {0,0,2,2,2};
-int[5] oringianlbArray = {0,0,0,0,3};
-int[5] oringianlzArray = {0,0,0,11,11};
-int[5] oringianlvariableBOIArray = {0,45,45,45,45};
-int correctFinal_b = 13;
+int[2] oringianlaArray = {0,2};
+int correctFinal_a = 6;
 SimpleJava();
-for(int i = 0; i < 5; (i)++){
+for(int i = 0; i < 2; (i)++){
 SemanticDistance += (SimpleJavaaArray[i]) != (oringianlaArray[i]);
-SemanticDistance += (SimpleJavabArray[i]) != (oringianlbArray[i]);
-SemanticDistance += (SimpleJavazArray[i]) != (oringianlzArray[i]);
-SemanticDistance += (SimpleJavavariableBOIArray[i]) != (oringianlvariableBOIArray[i]);
 }
 
-assert (bfinal == correctFinal_b);
+assert (afinal == correctFinal_a);
 SyntacticDistance += coeff0change;
 SyntacticDistance += coeff1change;
 SyntacticDistance += coeff2change;
@@ -226,10 +159,6 @@ SyntacticDistance += coeff5change;
 SyntacticDistance += coeff6change;
 SyntacticDistance += coeff7change;
 SyntacticDistance += coeff8change;
-SyntacticDistance += coeff9change;
-SyntacticDistance += coeff10change;
-SyntacticDistance += coeff11change;
-SyntacticDistance += coeff12change;
 
 minimize(SemanticDistance+2*SyntacticDistance);
 }

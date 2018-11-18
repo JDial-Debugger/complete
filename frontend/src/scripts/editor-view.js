@@ -132,40 +132,30 @@ class EditorView extends EventHandler {
   }
 
   makeSuggestion (raw) {
-    console.log('makeSuggestion EV raw: ', raw)
-    let matches = raw.match(/\{([^\n]*)\}/)
-    console.log("matches: ", matches)
 
-    if (matches === null || (matches[1] && matches[1].length === 0)) {
-      console.error(`RAW SUGGESTION: ${raw}`)
-      throw new Error('no suggestion')
-    }
-
-    let match = matches[1]
+    let match = raw.split('\n')
+    console.log(raw)
 
     // TODO: only looks at first suggestion currently
-    match.split(',')
-    .filter((p, i) => i === 0)
-    .forEach((rawPair) => {
-      let pair = rawPair.split('=')
+      let rawPair = raw.split('\n')[0]
+      let pair = raw.split('||||')
+      console.log(pair)
 
       if (pair.length !== 2) {
         throw new Error(`no pairs: ${match}`)
       }
+      let line = parseInt(pair[0])
+      let repair = pair[1]
 
-      let line = parseInt(pair[0], 10)
-      let value = parseInt(pair[1], 10)
-
+      console.log('line', line)
       if (isNaN(line)) {
         throw new Error(`line is NaN: ${match}`)
       }
 
-      if (isNaN(value)) {
-        throw new Error(`value is NaN: ${match}`)
-      }
+      console.log('repair', repair)
 
       let notif = NotificationView.send('success', 'Possible change', {
-        code: `add ${value} on line #${line}?`,
+        code: `change line ${line} to ${repair}?`,
         large: true,
         actions: [
           { name: 'Change', command: 'apply-suggestion' },
@@ -175,7 +165,7 @@ class EditorView extends EventHandler {
 
       notif.on('apply-suggestion', () => {
         let originalLine = this.editor.getLine(line - 1)
-        let modifiedLine = originalLine.replace(/\b\d+\b/, value.toString())
+        let modifiedLine = repair
         this.editor.replaceRange(
           modifiedLine,
           {line: line - 1, ch: 0},
@@ -194,7 +184,7 @@ class EditorView extends EventHandler {
       })
 
       notif.open()
-    })
+
   }
 }
 
