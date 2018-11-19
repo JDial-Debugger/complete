@@ -1,6 +1,10 @@
 .vagrant
+Vagrantfile
 frontend/node_modules
+frontend/dist
+frontend/package-lock.json
 frontend/.sass-cache
+backend/suggest/tmp
 backend/suggest/JDial-debugger/SkechObject/lib/sketch-1.6.7
 backend/suggest/JDial-debugger/SkechObject/lib/sketch-1.6.7.linux-x86.tar.gz
 backend/suggest/JDial-debugger/SkechObject/tmp
