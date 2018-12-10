@@ -29,4 +29,4 @@ cd /vagrant
 
 # DO NOT CHANGE without also changing the Vagrantfile so that port mapping is maintained
 echo "starting server..."
-PORT=3000 GIN_MODE=release PATH=$SKETCH_PATH JAVA_DIR=/vagrant/backend/suggest ./server
+PORT=5000 GIN_MODE=release PATH=$SKETCH_PATH JAVA_DIR=/vagrant/backend/suggest ./server

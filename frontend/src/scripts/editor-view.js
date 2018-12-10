@@ -130,60 +130,62 @@ class EditorView extends EventHandler {
   getFocusedLines () {
     return this.focusedLines.map(lineNum => lineNum + 1)
   }
-
+  //raw should be in the form: <line number>||||<repair>\n <next pair>
   makeSuggestion (raw) {
-
-    let match = raw.split('\n')
-    console.log(raw)
+    let match = raw.split('\n');
+    console.log(raw);
 
     // TODO: only looks at first suggestion currently
-      let rawPair = raw.split('\n')[0]
-      let pair = raw.split('||||')
-      console.log(pair)
-
-      if (pair.length !== 2) {
-        throw new Error(`no pairs: ${match}`)
+    let lineSuggestions = raw.split('\n');
+    let lineNums = [];
+    let suggestions = [];
+    let requestStr = '';
+    lineSuggestions.forEach(function(pair) {
+      console.log(pair);
+      if(pair == undefined || pair === ''){
+        return;
       }
-      let line = parseInt(pair[0])
-      let repair = pair[1]
-
-      console.log('line', line)
-      if (isNaN(line)) {
-        throw new Error(`line is NaN: ${match}`)
+      let splitPair = pair.split('||||'); //potential vulnerability if code contains a ||||
+      if(splitPair == undefined){
+        return;
       }
+      lineNums.push(parseInt(splitPair[0]))
+      suggestions.push(splitPair[1])
+      requestStr += `Change line ${splitPair[0]} to ${splitPair[1]}?\n`
+    });
 
-      console.log('repair', repair)
+    let notif = NotificationView.send('success', 'Possible change', {
+      code: requestStr,
+      large: true,
+      actions: [
+        { name: 'Change', command: 'apply-suggestion' },
+        { name: 'Try again', command: 'different-suggestion' }
+      ]
+    });
 
-      let notif = NotificationView.send('success', 'Possible change', {
-        code: `change line ${line} to ${repair}?`,
-        large: true,
-        actions: [
-          { name: 'Change', command: 'apply-suggestion' },
-          { name: 'Try again', command: 'different-suggestion' }
-        ]
-      })
-
-      notif.on('apply-suggestion', () => {
-        let originalLine = this.editor.getLine(line - 1)
-        let modifiedLine = repair
+    notif.on('apply-suggestion', () => {
+      for(let i = 0; i < lineNums.length; ++i){
+        let originalLine = this.editor.getLine(lineNums[i] - 1)
+        let trimOriLine = originalLine.trim()
+        let modifiedLine = originalLine.split(trimOriLine)[0] + suggestions[i]
         this.editor.replaceRange(
           modifiedLine,
-          {line: line - 1, ch: 0},
-          {line: line - 1, ch: originalLine.length}
+          {line: lineNums[i] - 1, ch: 0},
+          {line: lineNums[i] - 1, ch: originalLine.length}
         )
+      }
+      this.trigger('apply-suggestion', [])
+    })
 
-        this.trigger('apply-suggestion', [])
-      })
+    notif.on('different-suggestion', () => {
+      NotificationView.send('info', 'Make different suggestion').open()
+    })
 
-      notif.on('different-suggestion', () => {
-        NotificationView.send('info', 'Make different suggestion').open()
-      })
+    notif.on('dismiss', () => {
+      NotificationView.send('info', 'Suggestion ignored').open()
+    })
 
-      notif.on('dismiss', () => {
-        NotificationView.send('info', 'Suggestion ignored').open()
-      })
-
-      notif.open()
+    notif.open()
 
   }
 }

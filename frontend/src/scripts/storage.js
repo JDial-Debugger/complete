@@ -19,6 +19,21 @@ const BUILTIN_PROGRAMS = {
         System.out.println("Hello world");
     }
 }`,
+  'conditional': `public class Main {
+    static int SimpleJava() {
+        int a = 2;
+        int b = a + 1;
+        if(3 == a)
+          b = 7;
+        int c = a + b;
+        return c;
+    }
+
+    public static void main(String[] args) {
+        int x = SimpleJava();
+        System.out.println(x);
+    }
+}`,
   'custom': ``
 }
 
