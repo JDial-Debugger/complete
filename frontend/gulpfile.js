@@ -133,8 +133,10 @@ gulp.task('scripts', () => {
   return gulp
     .src(pkg.paths.scripts.all)
     .pipe(rollupWrapper({
-      entry: pkg.paths.scripts.main,
-      format: 'iife',
+      input: pkg.paths.scripts.main,
+      output: {
+	format: 'iife'
+      },
       plugins: [
         babel({
           exclude: 'node_modules/**',
@@ -152,10 +154,12 @@ gulp.task('scripts', () => {
 
 gulp.task('scripts-dev', (done) => {
   rollup.rollup({
-    entry: pkg.paths.scripts.main
+    input: pkg.paths.scripts.main
   }).then((bundle) => {
     bundle.write({
-      format: 'iife',
+      output: {
+	format: 'iife'
+      },
       dest: path.join(pkg.paths.dist, pkg.paths.scripts.bundle),
       sourceMap: true
     }).then(() => {
