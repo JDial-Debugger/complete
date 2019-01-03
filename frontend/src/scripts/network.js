@@ -52,6 +52,7 @@ class Network {
 
   static getSuggestion (payload, cb) {
     const ajaxDone = (res) => {
+      console.log(res);
       return void cb(null, res)
     }
 

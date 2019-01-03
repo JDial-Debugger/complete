@@ -133,15 +133,13 @@ class EditorView extends EventHandler {
   //raw should be in the form: <line number>||||<repair>\n <next pair>
   makeSuggestion (raw) {
     let match = raw.split('\n');
-    console.log(raw);
 
-    // TODO: only looks at first suggestion currently
     let lineSuggestions = raw.split('\n');
     let lineNums = [];
     let suggestions = [];
     let requestStr = '';
+    //for each suggestion, add a prompt to ask the user to update the given line
     lineSuggestions.forEach(function(pair) {
-      console.log(pair);
       if(pair == undefined || pair === ''){
         return;
       }

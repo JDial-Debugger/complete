@@ -34,7 +34,6 @@ func main() {
 
     // Ensure that the PORT environment variable is set before proceeding
     if port = os.Getenv("PORT"); port == "" {
-	println(port)
         glog.Fatal("$PORT must be set")
     }
 
@@ -196,8 +195,6 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
 
             focusedLinesStr += strconv.Itoa(lineNum)
         }
-        println(tmpTraceFilename)
-        println(tmpPointFilename)
 
         cmdName := "java"
         cmdArgs := []string{
@@ -215,11 +212,11 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
                 "error": "unable to make a suggestion",
             })
 
+
             // Exit the handler early
             glog.Error(err)
             return
         }
-        //println(string(cmdOut))
 
         c.String(http.StatusOK, string(cmdOut))
     }
