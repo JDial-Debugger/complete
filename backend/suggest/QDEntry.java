@@ -6,9 +6,6 @@ public class QDEntry {
         String wholeFilename = args[0];
         int offset = Integer.parseInt(args[1]);
         String partFilename = args[2];
-        //System.out.println("WHOLE: " + wholeFilename);
-        //System.out.println("PART: " + partFilename);
-
         String whole;
         String part;
 
@@ -17,6 +14,8 @@ public class QDEntry {
             whole = new Scanner(new File(wholeFilename)).useDelimiter("\\Z").next();
             part = new Scanner(new File(partFilename)).useDelimiter("\\Z").next();
         } catch (Exception e) {
+	    System.out.println("Whole File Name: " + wholeFilename);
+	    System.out.println("Part File Name: " + partFilename);
             System.out.println("failed with I/O error");
             return;
         }
@@ -26,11 +25,13 @@ public class QDEntry {
 
 
         try {
-            ent.Synthesize();
+            System.out.println(ent.Synthesize());
         } catch (InterruptedException e) {
             System.out.println("failed with interrupted error");
             return;
         } catch (Exception e) {
+	    System.out.println("Whole File Name: " + wholeFilename);
+	    System.out.println("Part File Name: " + partFilename);
             System.out.println(e);
             e.printStackTrace(System.out);
             return;
