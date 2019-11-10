@@ -1,5 +1,6 @@
 import NotificationView from './notification-view'
 import EventHandler from './event-handler'
+import DiffMatchPatch from 'diff-match-patch';
 
 const EXECUTING_LINE_CLASS = 'active-line'
 const FOCUS_LINE_CLASS = 'focus-line'
@@ -139,17 +140,27 @@ class EditorView extends EventHandler {
     let suggestions = [];
     let requestStr = '';
     //for each suggestion, add a prompt to ask the user to update the given line
-    lineSuggestions.forEach(function(pair) {
+    lineSuggestions.forEach((pair) => {
       if(pair == undefined || pair === ''){
         return;
       }
-      let splitPair = pair.split('||||'); //potential vulnerability if code contains a ||||
+      const splitPair = pair.split('||||'); //potential vulnerability if code contains a ||||
       if(splitPair == undefined){
         return;
       }
-      lineNums.push(parseInt(splitPair[0]))
-      suggestions.push(splitPair[1])
+      const suggestLineNum = splitPair[0];
+      const suggestion = splitPair[1];
+      lineNums.push(parseInt(suggestLineNum));
+      suggestions.push(suggestion)
       requestStr += `Change line ${splitPair[0]} to ${splitPair[1]}?\n`
+      const originalLine = this.editor.getLine(suggestLineNum - 1)
+      const originalLineWhitespace = originalLine.slice(0, originalLine.search(/\S/));
+      const diff = dmp.diff_main('dogs bark', 'cats bark');
+      this.editor.replaceRange(
+        `${originalLine}\n${originalLineWhitespace}${suggestion}`,
+        {line: suggestLineNum - 1, ch: 0},
+        {line: suggestLineNum - 1, ch: originalLine.length}
+      )
     });
 
     let notif = NotificationView.send('success', 'Possible change', {

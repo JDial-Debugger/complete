@@ -9,6 +9,7 @@
   "dependencies": {
     "clipboard": "^1.5.16",
     "codemirror": "^5.20.2",
+    "diff-match-patch": "^1.0.4",
     "jquery": "^3.1.1",
     "localforage": "^1.4.3",
     "mousetrap": "^1.6.0",
