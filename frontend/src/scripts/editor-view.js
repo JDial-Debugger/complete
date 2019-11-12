@@ -1,6 +1,6 @@
 import NotificationView from './notification-view'
 import EventHandler from './event-handler'
-import DiffMatchPatch from 'diff-match-patch';
+import { diff_match_patch } from './external/diff-match-patch';
 
 const EXECUTING_LINE_CLASS = 'active-line'
 const FOCUS_LINE_CLASS = 'focus-line'
@@ -149,15 +149,20 @@ class EditorView extends EventHandler {
         return;
       }
       const suggestLineNum = splitPair[0];
-      const suggestion = splitPair[1];
       lineNums.push(parseInt(suggestLineNum));
-      suggestions.push(suggestion)
-      requestStr += `Change line ${splitPair[0]} to ${splitPair[1]}?\n`
       const originalLine = this.editor.getLine(suggestLineNum - 1)
       const originalLineWhitespace = originalLine.slice(0, originalLine.search(/\S/));
-      const diff = dmp.diff_main('dogs bark', 'cats bark');
+      const suggestion = `${originalLineWhitespace}${splitPair[1]}`;
+      suggestions.push(suggestion)
+      requestStr += `Change line ${splitPair[0]} to ${splitPair[1]}?\n`
+
+      const dmp = new diff_match_patch();
+      const diff = dmp.diff_main(originalLine, suggestion);
+      console.log('diff', diff);
+      dmp.diff_cleanupSemantic(diff);
+      console.log(diff);
       this.editor.replaceRange(
-        `${originalLine}\n${originalLineWhitespace}${suggestion}`,
+        `${originalLine}\n${suggestion}`,
         {line: suggestLineNum - 1, ch: 0},
         {line: suggestLineNum - 1, ch: originalLine.length}
       )
