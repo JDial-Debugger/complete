@@ -165,7 +165,46 @@ class EditorView extends EventHandler {
         `${originalLine}\n${suggestion}`,
         {line: suggestLineNum - 1, ch: 0},
         {line: suggestLineNum - 1, ch: originalLine.length}
-      )
+      );
+      this.editor.markText(
+        {line: suggestLineNum - 1, ch: 0},
+        {line: suggestLineNum - 1, ch: originalLine.length},
+        {className: 'LineDiffRemove',
+         css: 'backgroundColor: #F00'}
+      );
+      this.editor.markText(
+        {line: suggestLineNum, ch: 0},
+        {line: suggestLineNum, ch: suggestion.length},
+        {className: 'LineDiffAdd',
+         css: 'backgroundColor: #0F0'}
+      );
+      let oriStrIdx = 0;
+      let suggestStrIdx = 0;
+      for (let i = 0; i < diff.length; ++i) {
+        console.log(i, diff[i])
+        if (diff[i][0] === -1) {
+        console.log(oriStrIdx, oriStrIdx + diff[i][1].length)
+          this.editor.markText(
+            {line: suggestLineNum - 1, ch: oriStrIdx},
+            {line: suggestLineNum - 1, ch: oriStrIdx + diff[i][1].length},
+            {className: 'CodeDiffRemove',
+             css: 'color: #F0F'}
+          );
+          oriStrIdx += diff[i][1].length;
+        } else if (diff[i][0] === 1) {
+        console.log(suggestStrIdx, suggestStrIdx + diff[i][1].length)
+          this.editor.markText(
+            {line: suggestLineNum, ch: suggestStrIdx},
+            {line: suggestLineNum, ch: suggestStrIdx + diff[i][1].length},
+            {className: 'CodeDiffAdd',
+             css: 'color: #00F'}
+          );
+          suggestStrIdx += diff[i][1].length;
+        } else if (diff[i][0] === 0) {
+          oriStrIdx += diff[i][1].length;
+          suggestStrIdx += diff[i][1].length;
+        }
+      }
     });
 
     let notif = NotificationView.send('success', 'Possible change', {

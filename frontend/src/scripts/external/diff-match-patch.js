@@ -1,3 +1,7 @@
+/*
+Added source file because I could not make the package work
+Source: https://github.com/0nix/es6-diff-match-patch
+*/
 class patch_obj{
   constructor(){
     this.diffs = [];
