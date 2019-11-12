@@ -262,13 +262,27 @@ class EditorView extends EventHandler {
       this.trigger('apply-suggestion', [])
     });
 
-    notif.on('cancel-suggestion', () => {
+    const deleteSuggestionLine = () => {
+      for (const marking of markings){ 
+        marking.clear();
+      }
+      for (const lineHandle of lineHandles) {
+        const lineNum = this.editor.getLineNumber(lineHandle[0]);
+        //remove highlight
+        this.editor.removeLineClass(lineNum, 'background', 'LineDiffRemove');
+        this.editor.removeLineClass(lineNum + 1, 'background', 'LineDiffAdd');
+        //delete original line
+        this.editor.replaceRange(
+          '',
+          {line: lineNum + 1, ch: 0},
+          {line: lineNum + 2, ch: 0}
+        );
+      }
       NotificationView.send('info', 'Suggestion ignored').open()
-    });
+    }
+    notif.on('cancel-suggestion', deleteSuggestionLine);
 
-    notif.on('dismiss', () => {
-      NotificationView.send('info', 'Suggestion ignored').open()
-    });
+    notif.on('dismiss', deleteSuggestionLine);
 
     notif.open();
 
