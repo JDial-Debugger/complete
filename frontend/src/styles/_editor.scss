@@ -2,6 +2,20 @@
 @import '_vars-fonts';
 @import '_vars-colors';
 
+.LineDiffAdd {
+  background-color: #E6FFED;
+}
+.CodeDiffAdd {
+  background-color: #ACF2BD;
+  color: #000 !important;
+}
+.LineDiffRemove {
+  background-color: #FFEEF0;
+}
+.CodeDiffRemove {
+  background-color: #FDBBC0;
+  color: #000 !important;
+}
 .CodeMirror {
   height: 100%;
   position: absolute;
@@ -23,9 +37,6 @@
       height: 20px;
       line-height: 20px;
     }
-  }
-  .DiffSuggestion {
-    background-color: #F00;
   }
 
   .CodeMirror-linenumber {

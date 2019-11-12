@@ -133,13 +133,12 @@ class EditorView extends EventHandler {
   }
   //raw should be in the form: <line number>||||<repair>\n <next pair>
   makeSuggestion (raw) {
-    let match = raw.split('\n');
-
     let lineSuggestions = raw.split('\n');
-    let lineNums = [];
-    let suggestions = [];
-    let requestStr = '';
-    //for each suggestion, add a prompt to ask the user to update the given line
+    //Each element is array of size 2 where the first elem is the original line handle, and the 2nd elem is the suggestion line handle
+    const lineHandles = [];
+    //holds all text markings to allowing clearing later
+    const markings = [];
+    //for each suggestion, add a git diff view with the original line
     lineSuggestions.forEach((pair) => {
       if(pair == undefined || pair === ''){
         return;
@@ -148,57 +147,46 @@ class EditorView extends EventHandler {
       if(splitPair == undefined){
         return;
       }
+      //TODO if no suggestions
       const suggestLineNum = splitPair[0];
-      lineNums.push(parseInt(suggestLineNum));
-      const originalLine = this.editor.getLine(suggestLineNum - 1)
+      if (!suggestLineNum || !splitPair[1]) {
+        return;
+      }
+      const originalLine = this.editor.getLine(suggestLineNum - 1);
       const originalLineWhitespace = originalLine.slice(0, originalLine.search(/\S/));
       const suggestion = `${originalLineWhitespace}${splitPair[1]}`;
-      suggestions.push(suggestion)
-      requestStr += `Change line ${splitPair[0]} to ${splitPair[1]}?\n`
 
       const dmp = new diff_match_patch();
       const diff = dmp.diff_main(originalLine, suggestion);
-      console.log('diff', diff);
       dmp.diff_cleanupSemantic(diff);
-      console.log(diff);
       this.editor.replaceRange(
         `${originalLine}\n${suggestion}`,
         {line: suggestLineNum - 1, ch: 0},
         {line: suggestLineNum - 1, ch: originalLine.length}
       );
-      this.editor.markText(
-        {line: suggestLineNum - 1, ch: 0},
-        {line: suggestLineNum - 1, ch: originalLine.length},
-        {className: 'LineDiffRemove',
-         css: 'backgroundColor: #F00'}
-      );
-      this.editor.markText(
-        {line: suggestLineNum, ch: 0},
-        {line: suggestLineNum, ch: suggestion.length},
-        {className: 'LineDiffAdd',
-         css: 'backgroundColor: #0F0'}
-      );
+      const oriLine = this.editor.getLineHandle(suggestLineNum - 1);
+      const suggestLine = this.editor.getLineHandle(suggestLineNum);
+      lineHandles.push([oriLine, suggestLine]);
+      this.editor.addLineClass(oriLine, 'background', 'LineDiffRemove');
+      this.editor.addLineClass(suggestLine, 'background', 'LineDiffAdd');
       let oriStrIdx = 0;
       let suggestStrIdx = 0;
       for (let i = 0; i < diff.length; ++i) {
-        console.log(i, diff[i])
         if (diff[i][0] === -1) {
-        console.log(oriStrIdx, oriStrIdx + diff[i][1].length)
-          this.editor.markText(
+          const marking = this.editor.markText(
             {line: suggestLineNum - 1, ch: oriStrIdx},
             {line: suggestLineNum - 1, ch: oriStrIdx + diff[i][1].length},
-            {className: 'CodeDiffRemove',
-             css: 'color: #F0F'}
+            {className: 'CodeDiffRemove'}
           );
+          markings.push(marking);
           oriStrIdx += diff[i][1].length;
         } else if (diff[i][0] === 1) {
-        console.log(suggestStrIdx, suggestStrIdx + diff[i][1].length)
-          this.editor.markText(
+          const marking = this.editor.markText(
             {line: suggestLineNum, ch: suggestStrIdx},
             {line: suggestLineNum, ch: suggestStrIdx + diff[i][1].length},
-            {className: 'CodeDiffAdd',
-             css: 'color: #00F'}
+            {className: 'CodeDiffAdd'}
           );
+          markings.push(marking);
           suggestStrIdx += diff[i][1].length;
         } else if (diff[i][0] === 0) {
           oriStrIdx += diff[i][1].length;
@@ -207,38 +195,43 @@ class EditorView extends EventHandler {
       }
     });
 
-    let notif = NotificationView.send('success', 'Possible change', {
-      code: requestStr,
+    let notif = NotificationView.send('success', 'Apply Suggestion?', {
+      code: '',
       large: true,
       actions: [
-        { name: 'Change', command: 'apply-suggestion' },
-        { name: 'Try again', command: 'different-suggestion' }
+        { name: 'Apply', command: 'apply-suggestion' },
+        { name: 'Cancel', command: 'cancel-suggestion' }
       ]
     });
 
     notif.on('apply-suggestion', () => {
-      for(let i = 0; i < lineNums.length; ++i){
-        let originalLine = this.editor.getLine(lineNums[i] - 1)
-        let trimOriLine = originalLine.trim()
-        let modifiedLine = originalLine.split(trimOriLine)[0] + suggestions[i]
+      for (const marking of markings){ 
+        marking.clear();
+      }
+      for (const lineHandle of lineHandles) {
+        const lineNum = this.editor.getLineNumber(lineHandle[0]);
+        //remove highlight
+        this.editor.removeLineClass(lineNum);
+        this.editor.removeLineClass(lineNum + 1);
+        //delete original line
         this.editor.replaceRange(
-          modifiedLine,
-          {line: lineNums[i] - 1, ch: 0},
-          {line: lineNums[i] - 1, ch: originalLine.length}
-        )
+          '',
+          {line: lineNum, ch: 0},
+          {line: lineNum + 1, ch: 0}
+        );
       }
       this.trigger('apply-suggestion', [])
-    })
+    });
 
-    notif.on('different-suggestion', () => {
-      NotificationView.send('info', 'Make different suggestion').open()
-    })
+    notif.on('cancel-suggestion', () => {
+      NotificationView.send('info', 'Suggestion ignored').open()
+    });
 
     notif.on('dismiss', () => {
       NotificationView.send('info', 'Suggestion ignored').open()
-    })
+    });
 
-    notif.open()
+    notif.open();
 
   }
 }
