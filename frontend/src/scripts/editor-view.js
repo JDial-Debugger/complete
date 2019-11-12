@@ -131,13 +131,70 @@ class EditorView extends EventHandler {
   getFocusedLines () {
     return this.focusedLines.map(lineNum => lineNum + 1)
   }
-  //raw should be in the form: <line number>||||<repair>\n <next pair>
+
+  /*
+   * @summary Adds preceeding whitespace to the suggestion code to match the original line
+   * @param originalLineText {string} - the full line of code that the suggestion is targeting
+   * @param suggestionText {string} - the suggestion code (no leading whitespace)
+  */
+  getSuggestionLine(originalLineText, suggestionText) {
+    const originalLineWhitespace = originalLineText.slice(0, originalLineText.search(/\S/));
+    return `${originalLineWhitespace}${suggestionText}`;
+
+  }
+  
+  /*
+   * @summary adds red/green highlighting to parts of the code that differ similar to github diffs
+   * @param diff {Array<Array<integer, string>>} In format of Google's diff_match_patch output, read
+   *        here https://github.com/google/diff-match-patch/wiki/API#diff_maintext1-text2--diffs
+   * @param originalLineNum {integer} - Line number of the original code
+   * @param suggestionLineNum {integer} - Line number of the newly inserted suggestion code
+   * @return {Array<marking>} - a list of the markings made to the editor (can use this to clear them later)
+   * read here about markings https://codemirror.net/doc/manual.html#api_marker
+  */
+  styleSuggestionDiff(diff, originalLineNum, suggestionLineNum) {
+    let oriStrIdx = 0;
+    let suggestStrIdx = 0;
+    const markings = [];
+
+    for (let i = 0; i < diff.length; ++i) {
+      if (diff[i][0] === -1) {
+        const marking = this.editor.markText(
+          {line: originalLineNum, ch: oriStrIdx},
+          {line: originalLineNum, ch: oriStrIdx + diff[i][1].length},
+          {className: 'CodeDiffRemove'}
+        );
+        markings.push(marking);
+        oriStrIdx += diff[i][1].length;
+
+      } else if (diff[i][0] === 1) {
+        const marking = this.editor.markText(
+          {line: suggestionLineNum, ch: suggestStrIdx},
+          {line: suggestionLineNum, ch: suggestStrIdx + diff[i][1].length},
+          {className: 'CodeDiffAdd'}
+        );
+        markings.push(marking);
+        suggestStrIdx += diff[i][1].length;
+
+      } else if (diff[i][0] === 0) {
+        oriStrIdx += diff[i][1].length;
+        suggestStrIdx += diff[i][1].length;
+      }
+    }
+    return markings;
+
+  }
+  //raw should be 
+  /*
+   * @summary - Displays a suggestion to the user in a git diff style, asking for confirmation before applying this to the code
+   * @param raw {string} - in the form: <line number>||||<repair>\n <next pair>
+  */
   makeSuggestion (raw) {
     let lineSuggestions = raw.split('\n');
     //Each element is array of size 2 where the first elem is the original line handle, and the 2nd elem is the suggestion line handle
     const lineHandles = [];
-    //holds all text markings to allowing clearing later
-    const markings = [];
+    //Keeps track of highlights on the diffs so we can clear later
+    let markings = [];
     //for each suggestion, add a git diff view with the original line
     lineSuggestions.forEach((pair) => {
       if(pair == undefined || pair === ''){
@@ -152,47 +209,29 @@ class EditorView extends EventHandler {
       if (!suggestLineNum || !splitPair[1]) {
         return;
       }
-      const originalLine = this.editor.getLine(suggestLineNum - 1);
-      const originalLineWhitespace = originalLine.slice(0, originalLine.search(/\S/));
-      const suggestion = `${originalLineWhitespace}${splitPair[1]}`;
 
-      const dmp = new diff_match_patch();
-      const diff = dmp.diff_main(originalLine, suggestion);
-      dmp.diff_cleanupSemantic(diff);
+      const originalLineText = this.editor.getLine(suggestLineNum - 1);
+      const suggestionLineText = this.getSuggestionLine(originalLineText, splitPair[1]);
+
+      //insert the suggestion line
       this.editor.replaceRange(
-        `${originalLine}\n${suggestion}`,
+        `${originalLineText}\n${suggestionLineText}`,
         {line: suggestLineNum - 1, ch: 0},
-        {line: suggestLineNum - 1, ch: originalLine.length}
+        {line: suggestLineNum - 1, ch: originalLineText.length}
       );
-      const oriLine = this.editor.getLineHandle(suggestLineNum - 1);
-      const suggestLine = this.editor.getLineHandle(suggestLineNum);
-      lineHandles.push([oriLine, suggestLine]);
-      this.editor.addLineClass(oriLine, 'background', 'LineDiffRemove');
-      this.editor.addLineClass(suggestLine, 'background', 'LineDiffAdd');
-      let oriStrIdx = 0;
-      let suggestStrIdx = 0;
-      for (let i = 0; i < diff.length; ++i) {
-        if (diff[i][0] === -1) {
-          const marking = this.editor.markText(
-            {line: suggestLineNum - 1, ch: oriStrIdx},
-            {line: suggestLineNum - 1, ch: oriStrIdx + diff[i][1].length},
-            {className: 'CodeDiffRemove'}
-          );
-          markings.push(marking);
-          oriStrIdx += diff[i][1].length;
-        } else if (diff[i][0] === 1) {
-          const marking = this.editor.markText(
-            {line: suggestLineNum, ch: suggestStrIdx},
-            {line: suggestLineNum, ch: suggestStrIdx + diff[i][1].length},
-            {className: 'CodeDiffAdd'}
-          );
-          markings.push(marking);
-          suggestStrIdx += diff[i][1].length;
-        } else if (diff[i][0] === 0) {
-          oriStrIdx += diff[i][1].length;
-          suggestStrIdx += diff[i][1].length;
-        }
-      }
+
+      const originalLineHandle = this.editor.getLineHandle(suggestLineNum - 1);
+      const suggestionLineHandle = this.editor.getLineHandle(suggestLineNum);
+      lineHandles.push([originalLineHandle, suggestionLineHandle]);
+
+      //get diff between original and suggestion
+      const dmp = new diff_match_patch();
+      const diff = dmp.diff_main(originalLineText, suggestionLineText);
+      
+      this.editor.addLineClass(originalLineHandle, 'background', 'LineDiffRemove');
+      this.editor.addLineClass(suggestionLineHandle, 'background', 'LineDiffAdd');
+
+      markings = this.styleSuggestionDiff(diff, suggestLineNum - 1, suggestLineNum);
     });
 
     let notif = NotificationView.send('success', 'Apply Suggestion?', {
@@ -211,8 +250,8 @@ class EditorView extends EventHandler {
       for (const lineHandle of lineHandles) {
         const lineNum = this.editor.getLineNumber(lineHandle[0]);
         //remove highlight
-        this.editor.removeLineClass(lineNum);
-        this.editor.removeLineClass(lineNum + 1);
+        this.editor.removeLineClass(lineNum, 'background', 'LineDiffRemove');
+        this.editor.removeLineClass(lineNum + 1, 'background', 'LineDiffAdd');
         //delete original line
         this.editor.replaceRange(
           '',
