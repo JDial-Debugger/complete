@@ -25,7 +25,7 @@ public class QDEntry {
 
 
         try {
-            System.out.println(ent.Synthesize());
+            ent.Synthesize();
         } catch (InterruptedException e) {
             System.out.println("failed with interrupted error");
             return;

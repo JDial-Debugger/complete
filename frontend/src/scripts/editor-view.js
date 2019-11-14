@@ -133,6 +133,7 @@ class EditorView extends EventHandler {
   }
 
   /*
+   * @author - Matt Kramer (matthewthekramer)
    * @summary Adds preceeding whitespace to the suggestion code to match the original line
    * @param originalLineText {string} - the full line of code that the suggestion is targeting
    * @param suggestionText {string} - the suggestion code (no leading whitespace)
@@ -144,6 +145,7 @@ class EditorView extends EventHandler {
   }
   
   /*
+  * @author - Matt Kramer (matthewthekramer)
    * @summary adds red/green highlighting to parts of the code that differ similar to github diffs
    * @param diff {Array<Array<integer, string>>} In format of Google's diff_match_patch output, read
    *        here https://github.com/google/diff-match-patch/wiki/API#diff_maintext1-text2--diffs
@@ -184,44 +186,63 @@ class EditorView extends EventHandler {
     return markings;
 
   }
-  //raw should be 
+  /*
+   * @author - Matt Kramer (matthewthekramer)
+   * @param raw {string} - raw string suggestions in the form: <line number>||||<repair>\n <next pair></next>
+   * @return {Array<LineSuggestion>} - Each element is an object with a lineNum and code property specifying which
+   *          lines need to have the updated code for the suggestion to be correct
+   */
+  getLineSuggestionsFromRaw (raw)  {
+    const lineSuggestionsRaw = raw.split('\n');
+    return lineSuggestionsRaw.map(rawLine => {
+      if (!rawLine || rawLine === '') {
+        return;
+      }
+      const rawSplit = rawLine.split('||||');
+      if (!rawSplit) {
+        return;
+      }
+      return {
+        lineNum: rawSplit[0],
+        code: rawSplit[1],
+      };
+    });
+
+  }
+  
   /*
    * @summary - Displays a suggestion to the user in a git diff style, asking for confirmation before applying this to the code
-   * @param raw {string} - in the form: <line number>||||<repair>\n <next pair>
-  */
+   * @param raw {string} - raw string suggestions in the form: <line number>||||<repair>\n <next pair></next>
+    */
   makeSuggestion (raw) {
-    let lineSuggestions = raw.split('\n');
+    const lineSuggestions = this.getLineSuggestionsFromRaw(raw);
+    if (!lineSuggestions || lineSuggestions.length === 0) {
+      return;
+    }
     //Each element is array of size 2 where the first elem is the original line handle, and the 2nd elem is the suggestion line handle
     const lineHandles = [];
     //Keeps track of highlights on the diffs so we can clear later
     let markings = [];
     //for each suggestion, add a git diff view with the original line
-    lineSuggestions.forEach((pair) => {
-      if(pair == undefined || pair === ''){
-        return;
-      }
-      const splitPair = pair.split('||||'); //potential vulnerability if code contains a ||||
-      if(splitPair == undefined){
-        return;
-      }
-      //TODO if no suggestions
-      const suggestLineNum = splitPair[0];
-      if (!suggestLineNum || !splitPair[1]) {
-        return;
+    for (const lineSuggestion of lineSuggestions) {
+      if (!lineSuggestion 
+            || lineSuggestion.lineNum < 0 
+            || lineSuggestion.code === ''){
+        continue;
       }
 
-      const originalLineText = this.editor.getLine(suggestLineNum - 1);
-      const suggestionLineText = this.getSuggestionLine(originalLineText, splitPair[1]);
+      const originalLineText = this.editor.getLine(lineSuggestion.lineNum - 1);
+      const suggestionLineText = this.getSuggestionLine(originalLineText, lineSuggestion.code);
 
       //insert the suggestion line
       this.editor.replaceRange(
         `${originalLineText}\n${suggestionLineText}`,
-        {line: suggestLineNum - 1, ch: 0},
-        {line: suggestLineNum - 1, ch: originalLineText.length}
+        {line: lineSuggestion.lineNum - 1, ch: 0},
+        {line: lineSuggestion.lineNum - 1, ch: originalLineText.length}
       );
 
-      const originalLineHandle = this.editor.getLineHandle(suggestLineNum - 1);
-      const suggestionLineHandle = this.editor.getLineHandle(suggestLineNum);
+      const originalLineHandle = this.editor.getLineHandle(lineSuggestion.lineNum - 1);
+      const suggestionLineHandle = this.editor.getLineHandle(lineSuggestion.lineNum);
       lineHandles.push([originalLineHandle, suggestionLineHandle]);
 
       //get diff between original and suggestion
@@ -231,8 +252,8 @@ class EditorView extends EventHandler {
       this.editor.addLineClass(originalLineHandle, 'background', 'LineDiffRemove');
       this.editor.addLineClass(suggestionLineHandle, 'background', 'LineDiffAdd');
 
-      markings = this.styleSuggestionDiff(diff, suggestLineNum - 1, suggestLineNum);
-    });
+      markings = this.styleSuggestionDiff(diff, lineSuggestion.lineNum - 1, lineSuggestion.lineNum);
+    };
 
     let notif = NotificationView.send('success', 'Apply Suggestion?', {
       code: '',
@@ -283,7 +304,6 @@ class EditorView extends EventHandler {
     notif.on('cancel-suggestion', deleteSuggestionLine);
 
     notif.on('dismiss', deleteSuggestionLine);
-
     notif.open();
 
   }
