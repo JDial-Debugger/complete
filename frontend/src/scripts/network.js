@@ -11,11 +11,11 @@ class Network {
    * @return lineError.msg {string} - the compiler message about the error
    */
   static checkTraceForSyntaxErrors(traceLines) {
-    if (traceLines.length === 1 && traceLines[1].event === "uncaughtException") {
+    if (traceLines.length === 1 && traceLines[0].event === "uncaught_exception") {
       return {
-        lineNum: traceLines[1].line,
-        charNum: traceLines[1].offset,
-        msg: traceLines[1].exception_msg,
+        lineNum: traceLines[0].line,
+        charNum: traceLines[0].offset,
+        msg: traceLines[0].exception_msg,
       }
     }
   }
@@ -24,8 +24,22 @@ class Network {
       return void cb(null, res)
     }
 
-    const ajaxFail = (err) => {
-      let notif = NotificationView.send('fatal', 'Network error getting trace2', {
+    //Compiler err: Displays a message to user informing about the line number and nature of the error
+    const traceFail = (msg, lineNum, charNum) => {
+      const errString = `
+        Line: ${lineNum}\n
+        Char: ${charNum}\n
+         > ${msg}
+      `;
+      let notif = NotificationView.send('fatal', 'Uncaught Compiler Error', {
+        large: true,
+        details: errString,
+      })
+      notif.open()
+    };
+
+    const ajaxFail = err => {
+      let notif = NotificationView.send('fatal', 'Network error getting trace', {
         large: true,
         details: 'Trying again in a moment will likely fix this issue.',
         actions: [
@@ -35,7 +49,7 @@ class Network {
 
       notif.on('retry', () => {
         // Call "getTrace" again with same arguments
-        Network.getTrace(payload, cb)
+        Network.getTrace(payload, cb);
       })
 
       notif.on('dismiss', () => {
@@ -44,7 +58,7 @@ class Network {
       })
 
       notif.open()
-    }
+    };
 
     superagent
     .post('/trace')
@@ -58,9 +72,21 @@ class Network {
         let parsedTrace = {}
 
         try {
+          console.log('here0')
           parsedTrace = JSON.parse(res.text)
-          for (line of parsed)
+          console.log('here1')
+          const error = this.checkTraceForSyntaxErrors(parsedTrace.trace);
+          console.log('here2')
+          if (error) {
+            traceFail(error.msg, error.lineNum, error.charNum);
+            console.log('here3')
+            //cb(error, []);
+          console.log('here4')
+            return;
+          }
+          console.log('here4')
         } catch (err) {
+          console.log(err)
           ajaxFail()
         }
 
