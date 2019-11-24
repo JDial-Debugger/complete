@@ -66,7 +66,7 @@ class Network {
           }
           console.log('here4')
         } catch (err) {
-          console.log(err)
+          console.log('Ajax fail', err)
           ajaxFail()
         }
 

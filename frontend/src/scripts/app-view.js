@@ -76,7 +76,11 @@ class AppView {
           //send popup notification
           traceFail(err.msg, err.lineNum, err.charNum);
           //highlight text where error occurs
-          //this.edv.editor.markText()
+          const marking = this.edv.editor.markText(
+            {line: err.lineNum - 1, ch: err.charNum - 1},
+            {line: err.lineNum - 1, ch: err.charNum},
+            {className: 'CodeDiffRemove'}
+        );
         } else if (trace[trace.length - 1]['event'] === 'instruction_limit_reached') {
           let notif = NotificationView.send('fatal', 'Error generating trace', {
             large: true,
