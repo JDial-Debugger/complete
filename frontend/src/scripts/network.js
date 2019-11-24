@@ -24,20 +24,6 @@ class Network {
       return void cb(null, res)
     }
 
-    //Compiler err: Displays a message to user informing about the line number and nature of the error
-    const traceFail = (msg, lineNum, charNum) => {
-      const errString = `
-        Line: ${lineNum}\n
-        Char: ${charNum}\n
-         > ${msg}
-      `;
-      let notif = NotificationView.send('fatal', 'Uncaught Compiler Error', {
-        large: true,
-        details: errString,
-      })
-      notif.open()
-    };
-
     const ajaxFail = err => {
       let notif = NotificationView.send('fatal', 'Network error getting trace', {
         large: true,
@@ -72,16 +58,10 @@ class Network {
         let parsedTrace = {}
 
         try {
-          console.log('here0')
           parsedTrace = JSON.parse(res.text)
-          console.log('here1')
           const error = this.checkTraceForSyntaxErrors(parsedTrace.trace);
-          console.log('here2')
           if (error) {
-            traceFail(error.msg, error.lineNum, error.charNum);
-            console.log('here3')
-            //cb(error, []);
-          console.log('here4')
+            cb(error, []);
             return;
           }
           console.log('here4')

@@ -56,12 +56,27 @@ class AppView {
 
         DevtoolsView.setWholeTrace(whole)
 
+        //Compiler err: Displays a message to user informing about the line number and nature of the error
+        const traceFail = (msg, lineNum, charNum) => {
+          const errString = `
+            Line: ${lineNum}\n
+            Char: ${charNum}\n
+            > ${msg}
+          `;
+          let notif = NotificationView.send('fatal', 'Uncaught Compiler Error', {
+            large: true,
+            details: errString,
+          })
+          notif.open()
+        };
         // Display appropriate notifications if there was an error or
         // the given trace was well-formed but contains a runtime error
         if (err !== null) {
-          // TODO
-          NotificationView.send('fatal', 'Bad trace!').open()
-          throw err
+          console.log(err);
+          //send popup notification
+          traceFail(err.msg, err.lineNum, err.charNum);
+          //highlight text where error occurs
+          //this.edv.editor.markText()
         } else if (trace[trace.length - 1]['event'] === 'instruction_limit_reached') {
           let notif = NotificationView.send('fatal', 'Error generating trace', {
             large: true,
