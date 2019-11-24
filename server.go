@@ -109,6 +109,8 @@ func handleTrace(c *gin.Context) {
       println(err)
         glog.Error("ERROR :0")
     }
+    println("Trace output:")
+    println(out.String())
 
     // Return that string as the HTTP response
     c.String(http.StatusOK, out.String())

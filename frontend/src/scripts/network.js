@@ -1,6 +1,24 @@
 import NotificationView from './notification-view'
 
 class Network {
+  /*
+   * @summary - Checks for errors in the trace (e.g. a compile error in the code)
+   * @param traceLines {Array<Object>} - An array where each element is a trace in the format 
+   *        as shown in https://github.com/pgbovine/OnlinePythonTutor/blob/master/v3/docs/opt-trace-format.md
+   * @return lineError {Object} - undefined if no errors, otherwise an object containing fields with relevant error info
+   * @return lineError.lineNum {integer} - the line the error occured on
+   * @return lineError.charNum {integer} - the index on the line the error occured on
+   * @return lineError.msg {string} - the compiler message about the error
+   */
+  static checkTraceForSyntaxErrors(traceLines) {
+    if (traceLines.length === 1 && traceLines[1].event === "uncaughtException") {
+      return {
+        lineNum: traceLines[1].line,
+        charNum: traceLines[1].offset,
+        msg: traceLines[1].exception_msg,
+      }
+    }
+  }
   static getTrace (payload, cb) {
     const ajaxDone = (res) => {
       return void cb(null, res)
@@ -32,8 +50,8 @@ class Network {
     .post('/trace')
     .send(payload.stringify())
     .end((err, res) => {
-      console.log('response', res)
-      console.log('error', err)
+      console.log('Trace response', res)
+      console.log('Trace error', err)
       if (err || res.ok !== true) {
         ajaxFail(err)
       } else {
@@ -41,6 +59,7 @@ class Network {
 
         try {
           parsedTrace = JSON.parse(res.text)
+          for (line of parsed)
         } catch (err) {
           ajaxFail()
         }
@@ -82,6 +101,8 @@ class Network {
     .post('/suggest')
     .send(payload.stringify())
     .end((err, res) => {
+      console.log('suggest response', res)
+      console.log('suggest error', err)
       if (err || res.ok !== true) {
         ajaxFail(err)
       } else {
