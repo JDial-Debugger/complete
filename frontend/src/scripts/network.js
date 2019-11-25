@@ -64,7 +64,6 @@ class Network {
             cb(error, []);
             return;
           }
-          console.log('here4')
         } catch (err) {
           console.log('Ajax fail', err)
           ajaxFail()

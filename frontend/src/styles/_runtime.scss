@@ -110,13 +110,13 @@ $dot-right-margin: 6px;
     margin: 0;
     padding: 0;
     list-style: none;
-
     .point {
       min-height: $point-height;
 
       .point-radio-button {
         display: none;
       }
+
 
       label {
         height: $point-height;
@@ -132,6 +132,22 @@ $dot-right-margin: 6px;
           display: block;
           float: left;
           background-image: url($assets-trace-sprite-path);
+          background-repeat: no-repeat;
+          overflow: hidden;
+        }
+      }
+      .exception {
+        &::before {
+          content: "";
+          width: $dot-width;
+          height: 24px;
+          width: 22px;
+          margin: 0 $dot-right-margin 0 0;
+          display: block;
+          float: left;
+          background-color: red;
+          -webkit-mask-image: url($assets-block-path);
+          mask-image: url($assets-block-path);
           background-repeat: no-repeat;
           overflow: hidden;
         }

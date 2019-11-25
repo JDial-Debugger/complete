@@ -108,6 +108,7 @@ class RuntimeView extends EventHandler {
       '<ol class="execution">'
     ])
 
+    console.log('trace before reduce', trace)
     html += trace.reduceRight((html, point, index) => {
       let lineNum = sanitize(point['line'])
       let pointHtml = ''
@@ -147,15 +148,14 @@ class RuntimeView extends EventHandler {
           let funcName = sanitize(point['func_name'])
           let returnData = returnValueStack.pop()
 
-          if (typeof returnData.value === 'undefined') {
-            throw new Error('call with no return value')
-          }
-
-          let returnTypeStr = sanitize(returnData.value.toString())
+          //possible for a return statement to not exist if an exception occurs
+          let returnTypeStr = returnData && returnData.value ? sanitize(returnData.value.toString()) : undefined;
+          console.log(returnData, returnTypeStr)
 
           pointHtml = htmlBuilder([
             // Render only the open tag since the closing tag was rendered
             // when the corresponding "return" trace point was rendered
+            //or when the corresponding "exception" trace point was rendered
             '<li class="point call expanded">',
 
             // Hidden radio button used to ensure that there can't be more
@@ -179,8 +179,8 @@ class RuntimeView extends EventHandler {
                 htmlBuilder.span('sig-syntax', '('),
                 argsHtml,
                 htmlBuilder.span('sig-syntax', ')'),
-                returnTypeStr !== 'VOID' ? htmlBuilder.span('sig-syntax', '&xrArr;') : '',
-                returnTypeStr !== 'VOID' ? htmlBuilder.span({
+                returnTypeStr ? htmlBuilder.span('sig-syntax', '&xrArr;') : '',
+                returnTypeStr ? htmlBuilder.span({
                   classes: ['sig-value', 'field', 'sig-return-value'],
                   children: sanitize(returnData.value.toString()),
                   'data-point': sanitize(returnData.index.toString())
@@ -248,6 +248,37 @@ class RuntimeView extends EventHandler {
           ])
 
           return pointHtml + html
+        //if a runtime exception was thrown in this point
+        case 'exception':
+          console.log('exception in trace index', point)
+          const notif = NotificationView.send('fatal', 'Runtime exception occured ', {
+            large: true,
+            details: `${point.exception_msg} at ${point.stack_to_render.map(frame => frame.func_name).join(", ")}`,
+          })
+          notif.open()
+          pointHtml = htmlBuilder([
+            htmlBuilder.li('point', [
+              htmlBuilder.input({
+                type: 'radio',
+                id: `point-${index}`,
+                classes: ['point-radio-button', 'point-exception'],
+                name: 'point',
+                value: index,
+                'data-line': lineNum
+              }),
+              htmlBuilder.p({
+                classes: ['exception'],
+                for: `point-${index}`,
+                children: `Exception ${point.exception_msg}`,
+              })
+            ]),
+            // Closing tags that correspond to open tags rendered for the
+            // corresponding "call" trace point
+            '</ol>',
+            '</div>', 
+            '</li>'
+          ])
+          return pointHtml + html;
 
         default:
           console.error(point)
