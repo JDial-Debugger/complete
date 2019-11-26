@@ -310,22 +310,6 @@ class RuntimeView extends EventHandler {
       this.setVisiblePoint(index)
     })
 
-    this.visualizationElem.find('.scope .sig-return-value').on('click', (event) => {
-      // Prevents the parent <li> from ALSO receiving a "click" event
-      event.stopPropagation()
-      event.preventDefault()
-
-      let returnPointIndex = parseInt(jQuery(event.currentTarget).attr('data-point'), 10)
-
-      if (isNaN(returnPointIndex)) {
-        NotificationView.send('fatal', 'Unknown return point').open()
-        throw new Error('unknown return point')
-      }
-
-      this.setVisiblePoint(returnPointIndex, '__return__')
-
-      return false
-    })
 
     // Cache the trace data
     this.whole = whole
