@@ -101,7 +101,7 @@ class Network {
 
       notif.open()
     }
-  //  console.log('payload:', payload.stringify())
+    console.log('suggest payload:', payload)
     superagent
     .post('/suggest')
     .send(payload.stringify())

@@ -146,8 +146,7 @@ class RuntimeView extends EventHandler {
             return html.concat(htmlBuilder([
               htmlBuilder.span('sig-name', argName),
               htmlBuilder.span('sig-syntax', ':'),
-              htmlBuilder.span('sig-value', htmlBuilder.input(`${args[argName]}`)),
-              htmlBuilder.button('')
+              htmlBuilder.span('sig-value', `${args[argName]}`),
             ]))
           }, []).join(htmlBuilder.span('sig-syntax', ','))
 
@@ -481,6 +480,7 @@ class RuntimeView extends EventHandler {
 
   getSuggestions (goals) {
     if (this.rendered === true) {
+      console.log('whole', this.whole) //DELETE
       if (this.index >= this.trace.length || this.index < 0) {
         throw new Error(`index ${this.index} is out of range`)
       }
@@ -492,7 +492,15 @@ class RuntimeView extends EventHandler {
       clone['stack_to_render'][0]['encoded_locals'] = goals.reduce((hash, goal) => {
         hash[goal.varname] = goal.newValue
         return hash
-      }, {})
+      }, {});
+      console.log('locked keys', Object.keys(this.lockedReturnValues))
+      //and for the locked function return values
+      for (const lockedReturnValueKey of Object.keys(this.lockedReturnValues.filter(
+            lockedReturnValueMeta => lockedReturnValueMeta.isLocked))) {
+
+        clone['stack_to_render'][lockedReturnValueKey]['encoded_locals']['__return__'] 
+                = this.lockedReturnValues[lockedReturnValueKey].value;
+      }
 
       clone['stack_to_render'][0]['ordered_varnames'] = goals.map((goal) => goal.varname)
 
