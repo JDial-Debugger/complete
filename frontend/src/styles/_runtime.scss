@@ -101,6 +101,10 @@ $dot-right-margin: 6px;
       // ...
     }
 
+    .button-return-locked {
+      background-color: rgb(119, 255, 165);
+    }
+
     .sig-value {
       color: #881280;
     }
@@ -370,7 +374,6 @@ $dot-right-margin: 6px;
       }
     }
   }
-
   .action-button {
     margin-top: 8px;
     margin-right: 16px;

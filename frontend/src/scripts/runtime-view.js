@@ -87,7 +87,11 @@ class RuntimeView extends EventHandler {
   }
 
   render (whole) {
-    let trace = whole.trace
+    let trace = whole.trace;
+
+    //For each function call in the execution, saves what value the user 
+    //has locked the return value as for debugging
+    this.lockedReturnValues = []
 
     if (Array.isArray(trace) === false) {
       throw new Error(`trace must be an array, received ${typeof trace}`)
@@ -98,7 +102,9 @@ class RuntimeView extends EventHandler {
     // signature, argument, and return values have to be added to the
     // visualization. A stack of return values is kept as the trace is
     // traversed so whenever a "call" event is encountered, the topmost
-    // return value is popped and used as the return value
+    // return value is popped and used as the return value.
+    // These function return values are used to populate the 'lock' fields
+    // initially
     let returnValueStack = []
 
     let html = ''
@@ -149,8 +155,11 @@ class RuntimeView extends EventHandler {
           let returnData = returnValueStack.pop()
 
           //possible for a return statement to not exist if an exception occurs
-          let returnTypeStr = returnData && returnData.value ? sanitize(returnData.value.toString()) : undefined;
-          console.log(returnData, returnTypeStr)
+          let returnValueStr = returnData && returnData.value ? sanitize(returnData.value.toString()) : undefined;
+          this.lockedReturnValues[index] = {
+            value: returnValueStr, 
+            isLocked: false
+          };
 
           pointHtml = htmlBuilder([
             // Render only the open tag since the closing tag was rendered
@@ -179,15 +188,20 @@ class RuntimeView extends EventHandler {
                 htmlBuilder.span('sig-syntax', '('),
                 argsHtml,
                 htmlBuilder.span('sig-syntax', ')'),
-                returnTypeStr ? htmlBuilder.span('sig-syntax', '&xrArr;') : '',
-                returnTypeStr ? htmlBuilder.span({
+                returnValueStr ? htmlBuilder.span('sig-syntax', '&xrArr;') : '',
+                returnValueStr ? htmlBuilder.span({
                   classes: ['sig-value', 'field', 'sig-return-value'],
                   children: htmlBuilder.input({
                     id: `sig-assert-return`,
-                    value: sanitize(returnData.value.toString()),
+                    value: returnValueStr,
                   }),
-                  'data-point': sanitize(returnData.index.toString())
-                }) : ''
+                  'data-point': returnValueStr
+                }) : '',
+                htmlBuilder.button({
+                  id: `func-return-lock-${index}`,
+                  classes: ['action-button'],
+                  children: 'Lock Return'
+                })
               ]
             }),
 
@@ -308,6 +322,23 @@ class RuntimeView extends EventHandler {
       }
 
       this.setVisiblePoint(index)
+    })
+    //Attach event listeners to lock buttons
+    this.visualizationElem.find('.func-sig > button').on('click', (event) => {
+      const id = jQuery(event.currentTarget).attr('id')
+      const index = parseInt(id.replace('func-return-lock-', ''))
+      console.log(index, this.lockedReturnValues)
+      if (!this.lockedReturnValues[index]) {
+        return;
+      }
+      const wasLocked  = this.lockedReturnValues[index].isLocked;
+      if (wasLocked) {
+        jQuery(event.currentTarget).removeClass('button-return-locked')
+      } else {
+        jQuery(event.currentTarget).addClass('button-return-locked')
+      }
+      this.lockedReturnValues[index].isLocked = !wasLocked; 
+
     })
 
 
