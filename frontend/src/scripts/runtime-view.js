@@ -108,7 +108,6 @@ class RuntimeView extends EventHandler {
       '<ol class="execution">'
     ])
 
-    console.log('trace before reduce', trace)
     html += trace.reduceRight((html, point, index) => {
       let lineNum = sanitize(point['line'])
       let pointHtml = ''
@@ -141,7 +140,8 @@ class RuntimeView extends EventHandler {
             return html.concat(htmlBuilder([
               htmlBuilder.span('sig-name', argName),
               htmlBuilder.span('sig-syntax', ':'),
-              htmlBuilder.span('sig-value', `${args[argName]}`)
+              htmlBuilder.span('sig-value', htmlBuilder.input(`${args[argName]}`)),
+              htmlBuilder.button('')
             ]))
           }, []).join(htmlBuilder.span('sig-syntax', ','))
 
@@ -182,7 +182,10 @@ class RuntimeView extends EventHandler {
                 returnTypeStr ? htmlBuilder.span('sig-syntax', '&xrArr;') : '',
                 returnTypeStr ? htmlBuilder.span({
                   classes: ['sig-value', 'field', 'sig-return-value'],
-                  children: sanitize(returnData.value.toString()),
+                  children: htmlBuilder.input({
+                    id: `sig-assert-return`,
+                    value: sanitize(returnData.value.toString()),
+                  }),
                   'data-point': sanitize(returnData.index.toString())
                 }) : ''
               ]
