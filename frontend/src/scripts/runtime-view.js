@@ -326,7 +326,6 @@ class RuntimeView extends EventHandler {
     this.visualizationElem.find('.func-sig > button').on('click', (event) => {
       const id = jQuery(event.currentTarget).attr('id')
       const index = parseInt(id.replace('func-return-lock-', ''))
-      console.log(index, this.lockedReturnValues)
       if (!this.lockedReturnValues[index]) {
         return;
       }
@@ -480,7 +479,6 @@ class RuntimeView extends EventHandler {
 
   getSuggestions (goals) {
     if (this.rendered === true) {
-      console.log('whole', this.whole) //DELETE
       if (this.index >= this.trace.length || this.index < 0) {
         throw new Error(`index ${this.index} is out of range`)
       }
@@ -493,7 +491,6 @@ class RuntimeView extends EventHandler {
         hash[goal.varname] = goal.newValue
         return hash
       }, {});
-      console.log('locked keys', Object.keys(this.lockedReturnValues))
       //and for the locked function return values
       for (const lockedReturnValueKey of Object.keys(this.lockedReturnValues.filter(
             lockedReturnValueMeta => lockedReturnValueMeta.isLocked))) {
@@ -504,16 +501,26 @@ class RuntimeView extends EventHandler {
 
       clone['stack_to_render'][0]['ordered_varnames'] = goals.map((goal) => goal.varname)
 
+      const assertions = [];
+      //find all assert statements from code and remove them
+      let curAssertLineIdx = '';
+      while ((curAssertLineIdx = this.whole.search(/\n.*assert.*\n/)) != -1) {
+        let restOfWhole = this.whole.substring(curAssertLineIdx + 1);
+        assertions.push(restOfWhole.substring(0, restOfWhole.find(/\n/) - 1));
+        this.whole = this.whole.substring(0, curAssertLineIdx) + restOfWhole.substring(restOfWhole.find(/\n/))
+      }
+
       // Send this data to the app-view module for processing
-      let wholeStr = JSON.stringify(this.whole)
-      let pointStr = JSON.stringify(clone)
-      let pointIdx = this.index
-      let focusedLines = [] // This value will be filled in by the AppView
+      let wholeStr = JSON.stringify(this.whole);
+      let pointStr = JSON.stringify(clone);
+      let assertionsStr = JSON.stringify(assertions);
+      let pointIdx = this.index;
+      let focusedLines = []; // This value will be filled in by the AppView
 
       // Make data available to the Debug panel
-      DevtoolsView.setModifiedTracePoint(clone, pointIdx)
+      DevtoolsView.setModifiedTracePoint(clone, pointIdx);
 
-      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, pointStr, pointIdx, focusedLines)])
+      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, pointStr, pointIdx, focusedLines, assertions)]);
     }
   }
 

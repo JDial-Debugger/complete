@@ -1,5 +1,5 @@
 class SuggestionPayload {
-  constructor (trace, point, pointIndex, focusedLines) {
+  constructor (trace, point, pointIndex, focusedLines, assertions) {
     if (typeof trace !== 'string') {
       throw new Error('expected `trace` to have type String')
     }
@@ -26,6 +26,7 @@ class SuggestionPayload {
     this.point = point
     this.pointIndex = pointIndex
     this.focusedLines = focusedLines
+    this.assertions = assertions
   }
 
   stringify () {
@@ -34,6 +35,7 @@ class SuggestionPayload {
       modified_point: this.point,
       modified_point_index: this.pointIndex,
       focused_lines: this.focusedLines,
+      assertions: this.assertions,
     })
   }
 }
