@@ -22,7 +22,7 @@ export const extractAssertLinesFromCode = code => {
   let curAssertLineIdx = '';
   while ((curAssertLineIdx = codeMinusAsserts.search(/\n.*assert.*\n/)) != -1) {
     let restOfCode = codeMinusAsserts.substring(curAssertLineIdx + 1);
-    assertions.push(restOfCode.substring(0, restOfCode.search(/\n/) - 1));
+    assertions.push( restOfCode.substring(0, restOfCode.search(/\n/)).trim());
     //does not remove new lines from the code
     codeMinusAsserts = codeMinusAsserts.substring(0, curAssertLineIdx + 1) 
                         + restOfCode.substring(restOfCode.search(/\n/));

@@ -34,7 +34,8 @@ class AppView {
       // Clear any pending notifications under the assumption that they
       // were meant for a previous program
       NotificationView.flush()
-      const [_, codeMinusAsserts] = extractAssertLinesFromCode(this.edv.getProgram());
+      const [assertions, codeMinusAsserts] = extractAssertLinesFromCode(this.edv.getProgram());
+      this.assertions = assertions;
       const payload = new TracePayload(codeMinusAsserts, '')
 
       const getTrace = (err, whole) => {
@@ -117,14 +118,15 @@ class AppView {
     }
 
     const suggestionAction = (payload) => {
-      this.mcs.disableCommands(['trace'])
-      this.mcs.startSpinning('trace')
-      this.mcs.enableCommands(['halt'])
+      this.mcs.disableCommands(['trace']);
+      this.mcs.startSpinning('trace');
+      this.mcs.enableCommands(['halt']);
 
-      payload.focusedLines = this.edv.getFocusedLines()
+      payload.assertions = this.assertions;
+      payload.focusedLines = this.edv.getFocusedLines();
 
       // Clear any pending notifications
-      NotificationView.flush()
+      NotificationView.flush();
 
       const getSuggestion = (err, raw) => {
         this.requestPending = false

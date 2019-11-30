@@ -501,13 +501,9 @@ class RuntimeView extends EventHandler {
 
       clone['stack_to_render'][0]['ordered_varnames'] = goals.map((goal) => goal.varname)
 
-      const [assertions, codeMinusAsserts] = extractAssertLinesFromCode(this.whole.code);
-      this.whole.code = codeMinusAsserts;
-
       // Send this data to the app-view module for processing
       let wholeStr = JSON.stringify(this.whole);
       let pointStr = JSON.stringify(clone);
-      let assertionsStr = JSON.stringify(assertions);
       let pointIdx = this.index;
       let focusedLines = []; // This value will be filled in by the AppView
 
@@ -517,8 +513,7 @@ class RuntimeView extends EventHandler {
       this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, 
                                                             pointStr, 
                                                             pointIdx, 
-                                                            focusedLines, 
-                                                            assertionsStr)]);
+                                                            focusedLines)]);
     }
   }
 
