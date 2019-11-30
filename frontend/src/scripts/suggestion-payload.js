@@ -27,6 +27,7 @@ class SuggestionPayload {
     this.pointIndex = pointIndex
     this.focusedLines = focusedLines
     this.assertions = assertions
+    console.log('assertions', assertions)
   }
 
   stringify () {

@@ -8,23 +8,26 @@ const TAG_REPLACEMENTS = {
  * @author - Matt Kramer
  * @summary - Given some source code, removes every line that contains an
  *            assert statement, and returns the modified code and list
- *            of source code lines containing the asserts
+ *            of source code lines containing the asserts. To keep traces 
+ *            consistent with the source code, a blank line is kept in the 
+ *            source code
  * @param {string} code - The source code to extract the assert statements from
  * @return {list, string} - The list of assert statements and the code without
  *                          the assert statements
  */
-export const extraAssertLinesFromCode = code => {
+export const extractAssertLinesFromCode = code => {
   let codeMinusAsserts = code;
   const assertions = [];
   //find all assert statements from code and remove them
   let curAssertLineIdx = '';
   while ((curAssertLineIdx = codeMinusAsserts.search(/\n.*assert.*\n/)) != -1) {
     let restOfCode = codeMinusAsserts.substring(curAssertLineIdx + 1);
-    assertions.push(restOfCode.substring(0, restOfCode.find(/\n/) - 1));
-    codeMinusAsserts = codeMinusAsserts.substring(0, curAssertLineIdx) 
-                        + restOfCode.substring(restOfCode.find(/\n/));
+    assertions.push(restOfCode.substring(0, restOfCode.search(/\n/) - 1));
+    //does not remove new lines from the code
+    codeMinusAsserts = codeMinusAsserts.substring(0, curAssertLineIdx + 1) 
+                        + restOfCode.substring(restOfCode.search(/\n/));
   }
-  return assertions, codeMinusAsserts;
+  return [assertions, codeMinusAsserts];
 };
 
 export const sanitize = function (dirty) {

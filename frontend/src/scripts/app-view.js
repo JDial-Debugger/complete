@@ -6,6 +6,7 @@ import RuntimeView from './runtime-view'
 import Storage from './storage'
 import TracePayload from './trace-payload'
 import DevtoolsView from './devtools-view'
+import { extractAssertLinesFromCode } from './util';
 
 class AppView {
   constructor () {
@@ -33,8 +34,8 @@ class AppView {
       // Clear any pending notifications under the assumption that they
       // were meant for a previous program
       NotificationView.flush()
-
-      const payload = new TracePayload(this.edv.getProgram(), '')
+      const [_, codeMinusAsserts] = extractAssertLinesFromCode(this.edv.getProgram());
+      const payload = new TracePayload(codeMinusAsserts, '')
 
       const getTrace = (err, whole) => {
         this.requestPending = false

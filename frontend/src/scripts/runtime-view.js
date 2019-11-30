@@ -3,7 +3,7 @@ import EventHandler from './event-handler'
 import ControlSurface from './control-surface'
 import NotificationView from './notification-view'
 import SuggestionPayload from './suggestion-payload'
-import { htmlBuilder, sanitize } from './util'
+import { htmlBuilder, sanitize, extractAssertLinesFromCode } from './util'
 
 class RuntimeView extends EventHandler {
   constructor (wrapperElem) {
@@ -501,14 +501,8 @@ class RuntimeView extends EventHandler {
 
       clone['stack_to_render'][0]['ordered_varnames'] = goals.map((goal) => goal.varname)
 
-      const assertions = [];
-      //find all assert statements from code and remove them
-      let curAssertLineIdx = '';
-      while ((curAssertLineIdx = this.whole.search(/\n.*assert.*\n/)) != -1) {
-        let restOfWhole = this.whole.substring(curAssertLineIdx + 1);
-        assertions.push(restOfWhole.substring(0, restOfWhole.find(/\n/) - 1));
-        this.whole = this.whole.substring(0, curAssertLineIdx) + restOfWhole.substring(restOfWhole.find(/\n/))
-      }
+      const [assertions, codeMinusAsserts] = extractAssertLinesFromCode(this.whole.code);
+      this.whole.code = codeMinusAsserts;
 
       // Send this data to the app-view module for processing
       let wholeStr = JSON.stringify(this.whole);
@@ -520,7 +514,11 @@ class RuntimeView extends EventHandler {
       // Make data available to the Debug panel
       DevtoolsView.setModifiedTracePoint(clone, pointIdx);
 
-      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, pointStr, pointIdx, focusedLines, assertions)]);
+      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, 
+                                                            pointStr, 
+                                                            pointIdx, 
+                                                            focusedLines, 
+                                                            assertionsStr)]);
     }
   }
 
