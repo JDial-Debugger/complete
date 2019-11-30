@@ -1,12 +1,5 @@
 class SuggestionPayload {
-  constructor (trace, point, pointIndex, focusedLines, assertions) {
-    if (typeof trace !== 'string') {
-      throw new Error('expected `trace` to have type String')
-    }
-
-    if (typeof point !== 'string') {
-      throw new Error('expected `point` to have type String')
-    }
+  constructor (trace, point, pointIndex, focusedLines) {
 
     if (typeof pointIndex !== 'number') {
       throw new Error('expected `pointIndex` to have type Number')
@@ -26,16 +19,18 @@ class SuggestionPayload {
     this.point = point;
     this.pointIndex = pointIndex;
     this.focusedLines = focusedLines;
-    this.assertions = assertions || [];
+  }
+
+  setAssertions (assertions) {
+    this.point.assertions = JSON.stringify(assertions);
   }
 
   stringify () {
     return JSON.stringify({
-      full_trace: this.trace,
-      modified_point: this.point,
+      full_trace: JSON.stringify(this.trace),
+      modified_point: JSON.stringify(this.point),
       modified_point_index: this.pointIndex,
       focused_lines: this.focusedLines,
-      assertions: this.assertions,
     })
   }
 }

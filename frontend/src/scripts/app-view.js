@@ -122,7 +122,7 @@ class AppView {
       this.mcs.startSpinning('trace');
       this.mcs.enableCommands(['halt']);
 
-      payload.assertions = this.assertions;
+      payload.setAssertions(this.assertions);
       payload.focusedLines = this.edv.getFocusedLines();
 
       // Clear any pending notifications

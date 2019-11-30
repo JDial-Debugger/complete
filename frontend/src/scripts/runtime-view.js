@@ -502,16 +502,14 @@ class RuntimeView extends EventHandler {
       clone['stack_to_render'][0]['ordered_varnames'] = goals.map((goal) => goal.varname)
 
       // Send this data to the app-view module for processing
-      let wholeStr = JSON.stringify(this.whole);
-      let pointStr = JSON.stringify(clone);
       let pointIdx = this.index;
       let focusedLines = []; // This value will be filled in by the AppView
 
       // Make data available to the Debug panel
       DevtoolsView.setModifiedTracePoint(clone, pointIdx);
 
-      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, 
-                                                            pointStr, 
+      this.trigger('get-suggestion', [new SuggestionPayload(this.whole, 
+                                                            clone, 
                                                             pointIdx, 
                                                             focusedLines)]);
     }
