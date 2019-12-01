@@ -39,9 +39,10 @@
 ## Booting up the Server
 
 These steps assume basic familiarity with the command line and assume that Vagrant has been installed and that this repository has been cloned locally and that the current working directory is the root directory of this project.
-### Download backend git submodule
+### Download and compile backend git submodule
 1. From the root `jdial` directory, in a linux terminal, change directory to `backend/suggest/JDial-debugger`. This directory is a git submodule for the backend JDial repository at https://github.com/JDial-Debugger/backend. To read more about git submodules, visit https://git-scm.com/book/en/v2/Git-Tools-Submodules
 2. Run `git submodule init` and then `git submodule update`
+3. Build backend code: `cd backend/suggest`, `make`
 
 ### Launch Vagrant Container
 Vagrant is used to ensure standard development environments across different local development machines. Read more about Vagrant at https://www.vagrantup.com/intro/index.html
