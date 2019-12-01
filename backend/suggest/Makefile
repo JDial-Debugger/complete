@@ -10,10 +10,10 @@ suggest: json-parser java-parser
 	javac -cp $(classpath) QDEntry.java $(src-dir)/*.java $(src-dir)/*/*.java $(src-dir)/*/*/*.java -d bin
 	
 json-parser: $(json-parser-dir)/json.g4
-	antlr4 -no-listener -visitor -package jsonparser json.g4
+	antlr4 -no-listener -visitor -package jsonparser $(json-parser-dir)/json.g4
 	
 java-parser: $(java-parser-dir)/simpleJava.g4
-	antlr4 -no-listener -visitor -package javaparser simpleJava.g4
+	antlr4 -no-listener -visitor -package javaparser $(java-parser-dir)/simpleJava.g4
 
 clean: clean-java-parser clean-json-parser
 	rm -rf bin/constraintfactory
