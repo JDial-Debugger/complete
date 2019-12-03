@@ -22,7 +22,8 @@ class SuggestionPayload {
   }
 
   setAssertions (assertions) {
-    this.point.assertions = JSON.stringify(assertions);
+    this.point.assertions = assertions;
+    console.log("trace and point", JSON.stringify(this.point), JSON.stringify(this.trace))
   }
 
   stringify () {
