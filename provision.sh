@@ -1,5 +1,9 @@
 
+#Suggest Path
 echo "export SUGGEST_PATH=/vagrant/backend/suggest/" >> ~/.profile
+#Sketch Enironmental Variables
+echo "export PATH=$PATH:/vagrant/backend/suggest/JDial-debugger/SkechObject/lib/sketch-1.6.7/sketch-frontend" >> ~/.profile
+echo "export SKETCH_HOME=/vagrant/backend/suggest/JDial-debugger/SkechObject/lib/sketch-1.6.7/sketch-frontend/runtime" >> ~/.profile
 
 # install Java 8 JDK
 sudo apt-get update -y

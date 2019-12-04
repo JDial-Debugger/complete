@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
     "bytes"
     "io/ioutil"
     "net/http"
@@ -109,8 +110,6 @@ func handleTrace(c *gin.Context) {
       println(err)
         glog.Error("ERROR :0")
     }
-    println("Trace output:")
-    println(out.String())
 
     // Return that string as the HTTP response
     c.String(http.StatusOK, out.String())
@@ -198,7 +197,7 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
             focusedLinesStr += strconv.Itoa(lineNum)
         }
 
-        cmdName := "java"
+
         cmdArgs := []string{
             "-cp",
             classpath,
@@ -209,6 +208,15 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
             "[" + focusedLinesStr + "]",
         }
 
+		//Enables remote debugging on host machine from eclipse IDE
+		debugArg := "-Xdebug"
+		debugServerArg := "-Xrunjdwp:transport=dt_socket,address=8888,server=y,suspend=y"
+		//Any flag will trigger debug mode (I don't want to invest time learning go right now)
+		if len(os.Args) > 1 {
+			cmdArgs = append([]string{debugArg, debugServerArg}, cmdArgs...)
+		}
+
+        cmdName := "java"
         if cmdOut, err = exec.Command(cmdName, cmdArgs...).Output(); err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{
                 "error": "unable to make a suggestion",
