@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
     "bytes"
     "io/ioutil"
     "net/http"
@@ -211,7 +210,7 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
 		//Enables remote debugging on host machine from eclipse IDE
 		debugArg := "-Xdebug"
 		debugServerArg := "-Xrunjdwp:transport=dt_socket,address=8888,server=y,suspend=y"
-		//Any flag will trigger debug mode (I don't want to invest time learning go right now)
+		//Any flag will trigger debug mode (don't have time to learn go right now)
 		if len(os.Args) > 1 {
 			cmdArgs = append([]string{debugArg, debugServerArg}, cmdArgs...)
 		}

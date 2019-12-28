@@ -3,11 +3,13 @@ src-dir		= JDial-debugger/SkechObject/src
 json-parser-dir	= JDial-debugger/SkechObject/src/jsonparser
 java-parser-dir	= JDial-debugger/SkechObject/src/javaparser
 
-
-
-suggest: json-parser java-parser
+main: json-parser java-parser
 	mkdir -p bin
 	javac -cp $(classpath) QDEntry.java $(src-dir)/*.java $(src-dir)/*/*.java $(src-dir)/*/*/*.java -d bin
+
+debug: json-parser java-parser
+	mkdir -p bin
+	javac -g -cp $(classpath) QDEntry.java $(src-dir)/*.java $(src-dir)/*/*.java $(src-dir)/*/*/*.java -d bin
 	
 json-parser: $(json-parser-dir)/json.g4
 	antlr4 -no-listener -visitor -package jsonparser $(json-parser-dir)/json.g4
