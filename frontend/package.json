@@ -10,7 +10,7 @@
     "clipboard": "^1.5.16",
     "codemirror": "^5.20.2",
     "diff-match-patch": "^1.0.4",
-    "jquery": "^3.1.1",
+    "jquery": "^3.5.0",
     "localforage": "^1.4.3",
     "mousetrap": "^1.6.0",
     "primer-css": "^4.4.0",
