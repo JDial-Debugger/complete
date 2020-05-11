@@ -18,6 +18,8 @@ class DebugView extends EventHandler {
     this.rtv = new RuntimeView(wrapperElem.find('.mp-runtime'))
     this.fcv = new FunctionCorrectionView(wrapperElem.find('.mp-corrections'))
     this.toggleTab(RUNTIME_TAB)
+    this.cs.on('show-runtime', () => this.toggleTab(RUNTIME_TAB))
+    this.cs.on('show-corrections', () => this.toggleTab(CORRECTION_TAB))
   }
 
   /**
@@ -60,6 +62,10 @@ class DebugView extends EventHandler {
       this.toggleTab(RUNTIME_TAB)
   }
 
+  enableTabs() {
+    this.cs.enableCommands([ 'show-runtime', 'show-corrections' ])
+  }
+
   /**
    * Renders both the runtime view and function correction view (currently
    * selected tab will only be visible)
@@ -68,6 +74,7 @@ class DebugView extends EventHandler {
   render(traceData) {
       this.rtv.render(traceData)
       this.fcv.setTrace(traceData)
+      this.enableTabs()
   }
 }
 
