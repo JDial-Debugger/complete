@@ -84,21 +84,30 @@
         <button class="mp-control-button align-right" data-command="reset">Reset</button>
       </div>
       <div class="notif-bucket"></div>
-      <div class="mp-workspace" style="bottom:16px">
+      <div class="mp-workspace">
         <div class="mp-editor mp-panel-bordered"></div>
-        <div class="mp-runtime mp-panel-bordered">
-          <div class="control-surface">
-            <button class="mp-control-button no-text" data-command="jump-start" disabled title="Jump to Start"></button>
-            <button class="mp-control-button no-text" data-command="step-backward" disabled title="Previous Step"></button>
-            <button class="mp-control-button no-text" data-command="step-forward" disabled title="Next Step"></button>
-            <button class="mp-control-button no-text" data-command="jump-end" disabled title="Jump to End"></button>
-          </div>
-          <div class="trace-visualization"></div>
-          <div class="variables edit">
-            <div class="mp-panel-description">Variables</div>
-            <div class="variables-wrapper"></div>
-          </div>
-        </div>
+        <section class="mp-debug">
+          <nav class="control-surface mp">
+            <button class="mp-control-button" data-command="show-runtime">Repair Variables</button>
+            <button class="mp-control-button" data-command="show-corrections">Repair Variables</button>
+          </nav>
+          <section class="mp-runtime mp-panel-bordered">
+            <div class="control-surface">
+              <button class="mp-control-button no-text" data-command="jump-start" disabled title="Jump to Start"></button>
+              <button class="mp-control-button no-text" data-command="step-backward" disabled title="Previous Step"></button>
+              <button class="mp-control-button no-text" data-command="step-forward" disabled title="Next Step"></button>
+              <button class="mp-control-button no-text" data-command="jump-end" disabled title="Jump to End"></button>
+            </div>
+            <div class="trace-visualization"></div>
+            <div class="variables edit">
+              <div class="mp-panel-description">Variables</div>
+              <div class="variables-wrapper"></div>
+            </div>
+          </section>
+          <section class="mp-corrections mp-panel-bordered">
+            <p>Hey</p>
+          </section>
+        </section>
       </div>
     </div>
     <script src="/public/vendor.min.js"></script>

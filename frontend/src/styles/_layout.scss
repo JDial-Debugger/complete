@@ -1,11 +1,6 @@
 @import '_vars-layout';
 
 .mp-workspace {
-  position: absolute;
-  top: $layout-control-surface-height + 16px;
-  left: 16px + 8px;
-  right: 16px + 8px;
-  bottom: 48px + 16px;
   user-select: none;
 
   .mp-editor {

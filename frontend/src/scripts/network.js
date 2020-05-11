@@ -58,6 +58,7 @@ class Network {
         let parsedTrace = {}
 
         try {
+          console.log(res)
           parsedTrace = JSON.parse(res.text)
           const error = this.checkTraceForSyntaxErrors(parsedTrace.trace);
           if (error) {

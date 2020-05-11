@@ -1,11 +1,12 @@
 import DevtoolsView from './devtools-view'
+import DebugTab from './debug-tab'
 import EventHandler from './event-handler'
 import ControlSurface from './control-surface'
 import NotificationView from './notification-view'
 import SuggestionPayload from './suggestion-payload'
 import { htmlBuilder, sanitize, extractAssertLinesFromCode } from './util'
 
-class RuntimeView extends EventHandler {
+class RuntimeView extends DebugTab {
   constructor (wrapperElem) {
     // Call EventHandler initialization code
     super()
@@ -89,10 +90,6 @@ class RuntimeView extends EventHandler {
   render (whole) {
     let trace = whole.trace;
 
-    //For each function call in the execution, saves what value the user 
-    //has locked the return value as for debugging
-    this.lockedReturnValues = []
-
     if (Array.isArray(trace) === false) {
       throw new Error(`trace must be an array, received ${typeof trace}`)
     }
@@ -103,8 +100,6 @@ class RuntimeView extends EventHandler {
     // visualization. A stack of return values is kept as the trace is
     // traversed so whenever a "call" event is encountered, the topmost
     // return value is popped and used as the return value.
-    // These function return values are used to populate the 'lock' fields
-    // initially
     let returnValueStack = []
 
     let html = ''
@@ -155,10 +150,6 @@ class RuntimeView extends EventHandler {
 
           //possible for a return statement to not exist if an exception occurs
           let returnValueStr = returnData && returnData.value ? sanitize(returnData.value.toString()) : undefined;
-          this.lockedReturnValues[index] = {
-            value: returnValueStr, 
-            isLocked: false
-          };
 
           pointHtml = htmlBuilder([
             // Render only the open tag since the closing tag was rendered
@@ -190,17 +181,9 @@ class RuntimeView extends EventHandler {
                 returnValueStr ? htmlBuilder.span('sig-syntax', '&xrArr;') : '',
                 returnValueStr ? htmlBuilder.span({
                   classes: ['sig-value', 'field', 'sig-return-value'],
-                  children: htmlBuilder.input({
-                    id: `sig-assert-return`,
-                    value: returnValueStr,
-                  }),
-                  'data-point': returnValueStr
+                  children: sanitize(returnData.value.toString()),
+                  'data-point': sanitize(returnData.index.toString())
                 }) : '',
-                htmlBuilder.button({
-                  id: `func-return-lock-${index}`,
-                  classes: ['action-button'],
-                  children: 'Lock Return'
-                })
               ]
             }),
 
@@ -322,23 +305,6 @@ class RuntimeView extends EventHandler {
 
       this.setVisiblePoint(index)
     })
-    //Attach event listeners to lock buttons
-    this.visualizationElem.find('.func-sig > button').on('click', (event) => {
-      const id = jQuery(event.currentTarget).attr('id')
-      const index = parseInt(id.replace('func-return-lock-', ''))
-      if (!this.lockedReturnValues[index]) {
-        return;
-      }
-      const wasLocked  = this.lockedReturnValues[index].isLocked;
-      if (wasLocked) {
-        jQuery(event.currentTarget).removeClass('button-return-locked')
-      } else {
-        jQuery(event.currentTarget).addClass('button-return-locked')
-      }
-      this.lockedReturnValues[index].isLocked = !wasLocked; 
-
-    })
-
 
     // Cache the trace data
     this.whole = whole

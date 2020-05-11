@@ -2,16 +2,18 @@ import ControlSurface from './control-surface'
 import EditorView from './editor-view'
 import Network from './network'
 import NotificationView from './notification-view'
-import RuntimeView from './runtime-view'
+import DebugView from './debug-view'
 import Storage from './storage'
 import TracePayload from './trace-payload'
 import DevtoolsView from './devtools-view'
 import { extractAssertLinesFromCode } from './util';
+import FunctionCorrectionView from './function-corrections-view'
 
 class AppView {
   constructor () {
     this.edv = new EditorView(jQuery('.mp-editor'), '')
-    this.rtv = new RuntimeView(jQuery('.mp-runtime'))
+    this.fcv = new FunctionCorrectionView(jQuery('mp-corrections'));
+    this.dv = new DebugView(jQuery('.mp-debug'))
     this.mcs = new ControlSurface(jQuery('.mp-controls'))
 
     // Properties for coordinating HTTP requests
@@ -29,14 +31,14 @@ class AppView {
       this.mcs.disableCommands(['trace'])
       this.mcs.startSpinning('trace')
       this.mcs.enableCommands(['halt'])
-      this.rtv.showPendingMessage()
+      this.dv.setPending()
 
       // Clear any pending notifications under the assumption that they
       // were meant for a previous program
       NotificationView.flush()
       const [assertions, codeMinusAsserts] = extractAssertLinesFromCode(this.edv.getProgram());
       this.assertions = assertions;
-      const payload = new TracePayload(codeMinusAsserts, '')
+      const payload = new TracePayload(this.edv.getProgram())
 
       const getTrace = (err, whole) => {
         this.requestPending = false
@@ -104,7 +106,7 @@ class AppView {
 
           notif.open()
         } else {
-          this.rtv.render(whole)
+          this.dv.render(whole)
         }
       }
 
@@ -172,7 +174,7 @@ class AppView {
     const haltAction = () => {
       this.mcs.enableCommands(['trace'])
       this.mcs.disableCommands(['halt'])
-      this.rtv.clear()
+      this.dv.clear()
       this.edv.unfreeze()
       this.requestCancelled = true
       this.mcs.stopSpinning('trace')
@@ -222,12 +224,12 @@ class AppView {
 
     this.edv.on('apply-suggestion', traceAction)
 
-    this.rtv.on('set-trace-point', (line) => {
+    this.dv.onRuntime('set-trace-point', (line) => {
       this.edv.freeze()
       this.edv.highlightLine(line)
     })
 
-    this.rtv.on('get-suggestion', suggestionAction)
+    this.dv.onRuntime('get-suggestion', suggestionAction)
 
     // Handle loading either a default program or a saved program
     // the user has already been editing

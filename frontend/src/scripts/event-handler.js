@@ -11,6 +11,12 @@ class EventHandler {
     }
   }
 
+  getListeners (name) {
+    if (this.events) {
+      return this.events[name];
+    }
+  }
+
   on (name, listener) {
     if (typeof listener !== 'function') {
       throw new Error('expected 2nd arg. to be of type "function"')
