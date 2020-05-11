@@ -40,6 +40,7 @@ $dot-right-margin: 6px;
 .mp-runtime {
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   .pending {
     margin: 16px;
@@ -50,8 +51,6 @@ $dot-right-margin: 6px;
   }
 
   .trace-visualization {
-    margin-top: $layout-control-surface-height;
-    position: relative;
     flex-grow: 1;
 
     .scope.top-level > .execution > .point.call.expanded:first-child {
@@ -73,11 +72,6 @@ $dot-right-margin: 6px;
 
   &.top-level {
     padding: 8px 0 0 0;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
     overflow-y: scroll;
 
     &::before {
@@ -311,9 +305,9 @@ $dot-right-margin: 6px;
 
 .variables {
   padding: 16px 0;
-  position: relative;
   border-top: 1px solid $color-gray;
   font-size: 14px;
+  flex: 1;
 
   ol {
     margin: 0;

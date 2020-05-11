@@ -1,20 +1,27 @@
 @import '_vars-layout';
 
+.app {
+  height: 100vh;
+}
 .mp-workspace {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
   user-select: none;
+  height: 100%;
 
   .mp-editor {
     width: $layout-editor-width;
-    position: absolute;
-    top: 0;
-    left: -8px;
+    flex: 1;
+    height: 100%;
   }
 
-  .mp-runtime {
-    width: $layout-runtime-width;
-    position: absolute;
-    top: 0;
-    right: -8px;
+  .mp-debug {
+    flex: 1;
+    height: 100%;
+    .mp-debug-tabs {
+      height: $layout-control-surface-height;
+    }
   }
 }
 
