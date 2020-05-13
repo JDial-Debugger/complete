@@ -51,7 +51,9 @@ const VALID_TAGS = [
   ['label', false],
   ['li', false],
   ['p', false],
-  ['span', false]
+  ['span', false],
+  ['select', false],
+  ['option', false]
 ]
 
 const VALID_FIELDS = [
