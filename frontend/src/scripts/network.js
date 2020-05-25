@@ -19,6 +19,8 @@ class Network {
       }
     }
   }
+
+  //TODO delete this
   static getTrace (payload, cb) {
     const ajaxDone = (res) => {
       return void cb(null, res)
@@ -45,7 +47,7 @@ class Network {
 
       notif.open()
     };
-
+    console.log('pay', payload)
     superagent
     .post('/trace')
     .send(payload.stringify())

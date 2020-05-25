@@ -1,17 +1,17 @@
 package main
 
 import (
-    "bytes"
-    "io/ioutil"
-    "net/http"
-    "os"
-    "os/exec"
-    "path/filepath"
-    "strconv"
-    "strings"
+    //"bytes"
+    //"io/ioutil"
+    //"net/http"
+    //"os"
+    //"os/exec"
+    //"path/filepath"
+   // "strconv"
+  //  "strings"
 
-    "github.com/gin-gonic/gin"
-    "github.com/golang/glog"
+ //   "github.com/gin-gonic/gin"
+//    "github.com/golang/glog"
 )
 
 const TMP_DIR string = "/tmp"
@@ -53,7 +53,7 @@ func main() {
 
     // Attach API handling functions to their respective HTTP endpoints
     r.POST("/trace", handleTrace)
-    r.POST("/suggest", handleSuggestion(java_dir))
+    r.POST("/suggestFunc", handleSuggestionFunc(java_dir))
 
     // Start the router listening for incoming requests on the specified port
     r.Run(":" + port)
@@ -114,7 +114,7 @@ func handleTrace(c *gin.Context) {
     c.String(http.StatusOK, out.String())
 }
 
-func handleSuggestion(java_dir string) gin.HandlerFunc {
+func handleSuggestionFunc(java_dir string) gin.HandlerFunc {
     return func (c *gin.Context) {
         if hasSketch := os.Getenv("SKETCH"); hasSketch == "FALSE" {
             c.JSON(http.StatusNotImplemented, gin.H{
@@ -132,28 +132,21 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
             return
         }
 
-        var tmpTraceFile, tmpPointFile *os.File
-        var tmpTraceFilename, tmpPointFilename string
+        var inputFile *os.File
+        var inputFileName string
         var err error
 
-        if tmpTraceFile, err = ioutil.TempFile(TMP_DIR, "trace"); err != nil {
+        if inputFile, err = ioutil.TempFile(TMP_DIR, "jdial_input"); err != nil {
             glog.Fatal(err)
         } else {
-            tmpTraceFilename = tmpTraceFile.Name()
+            inputFileName = tmpTraceFile.Name()
             // defer os.Remove(tmpTraceFile.Name())
         }
 
-        if tmpPointFile, err = ioutil.TempFile(TMP_DIR, "point"); err != nil {
-            glog.Fatal(err)
-        } else {
-            tmpPointFilename = tmpPointFile.Name()
-            // defer os.Remove(tmpPointFile.Name())
-        }
-
         // Write the full trace string to a file
-        fullTraceBuf := []byte(sugReq.FullTrace)
+        inputFileBuf := c.GetRawData()
 
-        if err = ioutil.WriteFile(tmpTraceFilename, fullTraceBuf, 0644); err != nil {
+        if err = ioutil.WriteFile(inputFileName, inputFileBug, 0644); err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{
                 "error": "unable to process the full execution trace",
             })
@@ -163,48 +156,17 @@ func handleSuggestion(java_dir string) gin.HandlerFunc {
             return
         }
 
-        // WRite the modified execution point to a file
-        pointBuf := []byte(sugReq.Point)
-
-        if err = ioutil.WriteFile(tmpPointFilename, pointBuf, 0644); err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "unable to process the modified execution point",
-            })
-
-            // Exit the handler early
-            glog.Error(err)
-            return
-        }
-
         var cmdOut []byte
 
-        var classpath = strings.Join([]string{
-            filepath.Join(java_dir, "bin"),
-            filepath.Join(java_dir, "JDial-debugger/JavaMeddler_ANTLR_PARSE/*"),
-            filepath.Join(java_dir, "JDial-debugger/SkechObject/lib/*"),
-            filepath.Join(java_dir, "."),
-            filepath.Join(java_dir, "JDial-debugger/"),
-        }, ":")
-
-        focusedLinesStr := ""
-
-        for i, lineNum := range sugReq.FocusedLines {
-            if i > 0 {
-                focusedLinesStr += ","
-            }
-
-            focusedLinesStr += strconv.Itoa(lineNum)
-        }
-
+        //copied from eclipse>debugger>threads>bottom one (usr/lib/jvm...)>properties
+        var classpath = "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/resources.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jsse.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jce.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/charsets.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/cldrdata.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/dnsns.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/localedata.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/sunpkcs11.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/zipfs.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/icedtea-sound.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/sunec.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/nashorn.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/jaccess.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/sunjce_provider.jar:/home/matt/Madison/Research/JDial/new11-1/backend/suggest/JDial-debugger/SkechObject/target/classes:/home/matt/.p2/pool/plugins/org.junit_4.12.0.v201504281640/junit.jar:/home/matt/.p2/pool/plugins/org.hamcrest.core_1.3.0.v20180420-1519.jar:/home/matt/.m2/repository/junit/junit/4.13/junit-4.13.jar:/home/matt/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/home/matt/.m2/repository/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar:/home/matt/.m2/repository/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar:/home/matt/.m2/repository/ch/qos/logback/logback-classic/1.2.3/logback-classic-1.2.3.jar:/home/matt/.m2/repository/ch/qos/logback/logback-core/1.2.3/logback-core-1.2.3.jar:/home/matt/.m2/repository/com/google/guava/guava/28.2-jre/guava-28.2-jre.jar:/home/matt/.m2/repository/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar:/home/matt/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/home/matt/.m2/repository/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar:/home/matt/.m2/repository/org/checkerframework/checker-qual/2.10.0/checker-qual-2.10.0.jar:/home/matt/.m2/repository/com/google/errorprone/error_prone_annotations/2.3.4/error_prone_annotations-2.3.4.jar:/home/matt/.m2/repository/com/google/j2objc/j2objc-annotations/1.3/j2objc-annotations-1.3.jar:/home/matt/.m2/repository/org/mockito/mockito-core/3.3.3/mockito-core-3.3.3.jar:/home/matt/.m2/repository/net/bytebuddy/byte-buddy/1.10.5/byte-buddy-1.10.5.jar:/home/matt/.m2/repository/net/bytebuddy/byte-buddy-agent/1.10.5/byte-buddy-agent-1.10.5.jar:/home/matt/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar:/home/matt/.m2/repository/org/powermock/powermock-module-junit4-legacy/2.0.2/powermock-module-junit4-legacy-2.0.2.jar:/home/matt/.m2/repository/org/powermock/powermock-module-junit4-common/2.0.2/powermock-module-junit4-common-2.0.2.jar:/home/matt/.m2/repository/org/powermock/powermock-reflect/2.0.2/powermock-reflect-2.0.2.jar:/home/matt/.m2/repository/org/powermock/powermock-core/2.0.2/powermock-core-2.0.2.jar:/home/matt/.m2/repository/org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar:/home/matt/.m2/repository/org/powermock/powermock-api-mockito2/2.0.2/powermock-api-mockito2-2.0.2.jar:/home/matt/.m2/repository/org/powermock/powermock-api-support/2.0.2/powermock-api-support-2.0.2.jar:/home/matt/.m2/repository/org/antlr/antlr4-runtime/4.8-1/antlr4-runtime-4.8-1.jar"
 
         cmdArgs := []string{
             "-cp",
             classpath,
-            "QDEntry",
-            tmpTraceFilename,
-            strconv.Itoa(sugReq.PointIndex),
-            tmpPointFilename,
-            "[" + focusedLinesStr + "]",
+            "repair.RepairEngine",
+            "funcCorrection",
+            inputFileName,
         }
 
 		//Enables remote debugging on host machine from eclipse IDE

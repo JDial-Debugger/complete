@@ -2,6 +2,8 @@ import { htmlBuilder } from './util'
 import DebugTab from './debug-tab'
 import { props, getFuncArgs } from './trace';
 import Errors from './constants/errors';
+import TracePayload from './trace-payload';
+import Network from './network';
 
 const intPlaceholder = 0;
 const strPlaceholder = "abc";
@@ -21,8 +23,8 @@ class FunctionCorrectionView extends DebugTab {
    * @param {Object} traceData 
    */
   setTrace(traceData) {
-    console.log(traceData)
     this.tracePoints = traceData.trace;
+    this.code = traceData.code;
 
     let funcHtml = `
       <div class="func-container">
@@ -52,10 +54,65 @@ class FunctionCorrectionView extends DebugTab {
         this.setFuncName(jQuery(currentTarget).val()))
     
     const examplesElem = jQuery(`<div class="examples-container"></div>`);
-    this.wrapperElem.append(examplesElem)
     this.examplesElem = examplesElem
+    this.wrapperElem.append(examplesElem)
+    const submitElem = jQuery(htmlBuilder.button('examples-submit', 'Submit'))
+    submitElem.on('click', () => this.handleExamplesSubmit())
+    this.wrapperElem.append(submitElem)
     this.setFuncName(funcNames[0])
     this.addBlankExample()
+  }
+
+  handleExamplesSubmit() {
+
+    if(!this.validateExamples()) {
+      return
+    }
+    this.setLoading()
+    //construct code to submit to trace generator by inserting
+    //a call to the target function with the inputted params
+    //for each example
+
+    //search for the main method
+    let mainRegex = /static\s*void\s*main\s*\(\s*String\[\]\s*\w*\)\s*{/
+    const [ match ] = this.code.match(mainRegex)
+    const matchIdx = this.code.indexOf(match)
+    const tracePromises = []
+    const callLine = this.code.substring(0, matchIdx).split('\n').length + 1
+    console.log(callLine)
+
+    //get trace for each example
+    for (const example of this.examples.slice(0, this.examples.length - 1)) {
+
+      const funcCallStr = `\n${this.funcName}(${example.paramStr});\n`
+      const exampleCode = this.code.substring(0, this.code.indexOf(match) + match.length) +
+        funcCallStr + this.code.substring(this.code.indexOf(match) + match.length)
+      tracePromises.push(axios.post('/trace', { source: exampleCode }))
+    }
+    Promise.all(tracePromises).then(traceResponses => {
+      console.log(traceResponses)
+      axios.post('/suggestFunc', {
+        targetFunc: this.funcName,
+        code: this.code,
+        corrections: traceResponses.map((res, idx) => ({
+          callLine,
+          returnVal: parseInt(this.examples[idx].retStr),
+          trace: res.data.trace
+        }))
+      }).then(suggestRes => {
+        console.log(suggestRes)
+        this.trigger('new-suggestion', suggestRes.data)
+      })
+    })
+  }
+
+  setLoading() {
+    //TODO
+  }
+
+  validateExamples() {
+    //TODO
+    return true
   }
 
   setFuncName(name) {
@@ -79,11 +136,11 @@ class FunctionCorrectionView extends DebugTab {
    * and the 'return' property has the desired return value
    */
   addBlankExample() {
-    console.log("HERE")
     if (!this.examples) {
       this.examples = []
     }
     this.examples.push({})
+    const curIdx = this.examples.length - 1
 
     const exampleElem = jQuery(`
       <div class="example-container">
@@ -97,8 +154,10 @@ class FunctionCorrectionView extends DebugTab {
       placeholder: this.getPlaceholderStr(),
       classes: 'example-text'
     }))
+    paramInputElem.on('focus', () => 
+        this.handleExampleFocus(curIdx))
     paramInputElem.on('change', ({ target }) => 
-        this.handleParamStrChange(target.value, this.examples.length - 1))
+        this.handleParamStrChange(target.value, curIdx))
     exampleElem.append(paramInputElem)
 
     const suffix = jQuery(htmlBuilder.p('example-text', `) &xrArr; `))
@@ -109,7 +168,7 @@ class FunctionCorrectionView extends DebugTab {
       classes: 'example-text'
     }))
     retInputElem.on('change', ({ target }) =>
-        this.handleRetStrChange(target.value, this.examples.length - 1))
+        this.handleRetStrChange(target.value, curIdx))
     exampleElem.append(retInputElem)
 
     this.examplesElem.append(exampleElem)
@@ -123,6 +182,21 @@ class FunctionCorrectionView extends DebugTab {
     this.examples[exampleIdx].retStr = val
   }
 
+  /**
+   * If this is the last example focused, add a new example
+   * @param {number} exampleIdx 
+   */
+  handleExampleFocus(exampleIdx) {
+    if (this.examples.length - 1 === exampleIdx) {
+      this.addBlankExample()
+    }
+  }
+
+  /**
+   * Based on the current function, creates a placeholder
+   * for the function params
+   * @return {string} - in the form: "0, 4, "abc", false"
+   */
   getPlaceholderStr() {
 
     const args = getFuncArgs(this.tracePoints, this.funcName)

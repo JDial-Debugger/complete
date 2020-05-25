@@ -1,0 +1,26 @@
+
+.func-container {
+    .func-title {
+
+    }
+    .func-select {
+
+    }
+}
+
+.example-container {
+    display: flex;
+    align-items: center;
+
+    .example-text {
+        white-space: nowrap;
+        padding: 4px;
+        margin: 0px;
+    }
+
+    input {
+        max-width: 100px;
+    }
+}
+
+
