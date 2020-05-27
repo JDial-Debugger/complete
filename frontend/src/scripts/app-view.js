@@ -40,6 +40,41 @@ class AppView {
       this.assertions = assertions;
       const payload = new TracePayload(this.edv.getProgram())
 
+      //Compiler err: Displays a message to user informing about the line number and nature of the error
+      const traceFail = (msg, lineNum, charNum) => {
+        const errString = `
+          Line: ${lineNum}\n
+          Char: ${charNum}\n
+          > ${msg}
+        `;
+        let notif = NotificationView.send('fatal', 'Uncaught Compiler Error', {
+          large: true,
+          details: errString,
+        })
+        notif.open()
+      };
+
+      axios.post('trace', { source: this.edv.getProgram() })
+      .then(res => {
+        console.log(res.data)
+        this.mcs.stopSpinning('trace')
+        DevtoolsView.setWholeTrace(res.data)
+        this.dv.render(res.data)
+
+      })
+      .catch(err => {
+        this.mcs.stopSpinning('trace')
+        console.error(err);
+        //send popup notification
+        traceFail(err.msg, err.lineNum, err.charNum);
+        //highlight text where error occurs
+        const marking = this.edv.editor.markText(
+          {line: err.lineNum - 1, ch: err.charNum - 1},
+          {line: err.lineNum - 1, ch: err.charNum},
+          {className: 'CodeDiffRemove'})
+
+      })
+      /*
       const getTrace = (err, whole) => {
         this.requestPending = false
 
@@ -59,6 +94,7 @@ class AppView {
         let trace = whole.trace
 
         DevtoolsView.setWholeTrace(whole)
+
 
         //Compiler err: Displays a message to user informing about the line number and nature of the error
         const traceFail = (msg, lineNum, charNum) => {
@@ -108,7 +144,7 @@ class AppView {
         } else {
           this.dv.render(whole)
         }
-      }
+      }*/
 
       // Reset the "requestCancelled" property before the request is issued so that
       // if the property is set between now and when the request response is received
@@ -116,7 +152,7 @@ class AppView {
       this.requestCancelled = false
       this.requestPending = true
 
-      Network.getTrace(payload, getTrace)
+      //Network.getTrace(payload, getTrace)
     }
 
     const suggestionAction = (payload) => {

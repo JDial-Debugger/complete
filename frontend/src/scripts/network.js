@@ -47,6 +47,7 @@ class Network {
 
       notif.open()
     };
+
     console.log('pay', payload)
     superagent
     .post('/trace')
