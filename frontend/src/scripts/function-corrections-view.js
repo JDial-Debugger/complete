@@ -14,6 +14,7 @@ class FunctionCorrectionView extends DebugTab {
   constructor (wrapperElem) {
     // Call EventHandler initialization code
     super();
+    super.declareEvent('new-suggestion')
     this.wrapperElem = wrapperElem
 
   }
@@ -77,31 +78,33 @@ class FunctionCorrectionView extends DebugTab {
     let mainRegex = /static\s*void\s*main\s*\(\s*String\[\]\s*\w*\)\s*{/
     const [ match ] = this.code.match(mainRegex)
     const matchIdx = this.code.indexOf(match)
-    const tracePromises = []
     const callLine = this.code.substring(0, matchIdx).split('\n').length + 1
-    console.log(callLine)
 
+    const traceData = []
     //get trace for each example
     for (const example of this.examples.slice(0, this.examples.length - 1)) {
 
       const funcCallStr = `\n${this.funcName}(${example.paramStr});\n`
       const exampleCode = this.code.substring(0, this.code.indexOf(match) + match.length) +
         funcCallStr + this.code.substring(this.code.indexOf(match) + match.length)
-      tracePromises.push(axios.post('/trace', { source: exampleCode }))
+      traceData.push(exampleCode)
+      //tracePromises.push(axios.post('/trace', { source: exampleCode }))
     }
-    Promise.all(tracePromises).then(traceResponses => {
-      console.log(traceResponses)
+    console.log("HEHEHEHE", traceData)
+    axios.post('/traces', traceData).then(({data: tracesRes}) => {
+      console.log(tracesRes)
       axios.post('/suggestFunc', {
         targetFunc: this.funcName,
         code: this.code,
-        corrections: traceResponses.map((res, idx) => ({
+        corrections: tracesRes.map((res, idx) => ({
           callLine,
           returnVal: parseInt(this.examples[idx].retStr),
-          trace: res.data.trace
+          trace: JSON.parse(res).trace
         }))
       }).then(suggestRes => {
-        console.log(suggestRes)
-        this.trigger('new-suggestion', suggestRes.data)
+        console.log(suggestRes.data)
+        //get last line TODO quick hack
+        this.trigger('new-suggestion', [suggestRes.data])
       })
     })
   }

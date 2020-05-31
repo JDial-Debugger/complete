@@ -215,7 +215,8 @@ class EditorView extends EventHandler {
    * @param raw {string} - raw string suggestions in the form: <line number>||||<repair>\n <next pair></next>
     */
   makeSuggestion (raw) {
-    const lineSuggestions = this.getLineSuggestionsFromRaw(raw);
+    //const lineSuggestions = this.getLineSuggestionsFromRaw(raw);
+    const lineSuggestions = raw;
     if (!lineSuggestions || lineSuggestions.length === 0) {
       return;
     }

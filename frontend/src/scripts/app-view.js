@@ -53,7 +53,6 @@ class AppView {
         })
         notif.open()
       };
-
       axios.post('trace', { source: this.edv.getProgram() })
       .then(res => {
         console.log(res.data)
@@ -240,6 +239,11 @@ class AppView {
       })
     }
 
+    const suggestFuncAction = data => {
+      const arraySuggest = Object.keys(data).map(lineNum => ({ lineNum, code: data[lineNum]}))
+      this.edv.makeSuggestion(arraySuggest)
+    }
+
     const dropdownAction = (dropdownValue) => {
       Storage.setWorkingCopyFromBuiltin(dropdownValue, (err, value) => {
         if (err !== null) {
@@ -266,6 +270,7 @@ class AppView {
     })
 
     this.dv.onRuntime('get-suggestion', suggestionAction)
+    this.dv.onCorrection('new-suggestion', suggestFuncAction)
 
     // Handle loading either a default program or a saved program
     // the user has already been editing
