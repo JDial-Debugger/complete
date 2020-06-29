@@ -1,0 +1,28 @@
+{
+  "name": "jdial-web-server",
+  "version": "1.0.0",
+  "description": "## Prerequisites",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JDial-Debugger/complete.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JDial-Debugger/complete/issues"
+  },
+  "homepage": "https://github.com/JDial-Debugger/complete#readme",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "express": "^4.17.1",
+    "express-request-id": "^1.4.1",
+    "http-status-codes": "^1.4.0",
+    "stream": "0.0.2",
+    "tmp": "^0.2.1"
+  }
+}
