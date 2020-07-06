@@ -213,13 +213,14 @@ public class InMemory {
 
       java.util.Map<String, Connector.Argument> args
       = connector.defaultArguments();
-
+      
       /* what are the other options? on my system,
       for (java.util.Map.Entry<String, Connector.Argument> arg: args.entrySet()) {
         System.out.print(arg.getKey()+" ");
         System.out.print("["+arg.getValue().value()+"]: ");
-        System.out.(arg.getValue().description());
+        System.out.print(arg.getValue().description());
       }
+      
       prints out:
 
       home [/java/jre]: Home directory of the SDK or runtime environment used to launch the application

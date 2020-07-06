@@ -46,7 +46,7 @@ public class JSONTracingThread extends Thread {
 
     static int MAX_STEPS = 256;
 
-    static double MAX_WALLTIME_SECONDS = 5;
+    static double MAX_WALLTIME_SECONDS = 20;
 
     private int steps = 0;
 
@@ -113,7 +113,7 @@ public class JSONTracingThread extends Thread {
                 for (Event ev : new Iterable<Event>(){public Iterator<Event> iterator(){return eventSet.eventIterator();}}) {
 
 
-                    //System.out.println("in run: " + steps+" "+ev+" "+(System.currentTimeMillis()-startTime));
+                    System.out.println("in run: " + steps+" "+ev+" ");
 
                     //        System.out.println(currentTimeMillis());
                     if (System.currentTimeMillis() > MAX_WALLTIME_SECONDS * 1000 + InMemory.startTime) {
@@ -258,7 +258,7 @@ public class JSONTracingThread extends Thread {
         return null;
     }
     
-    /***
+/***
      * A VMDisconnectedException has happened while dealing with
      * another event. We need to flush the event queue, dealing only
      * with exit events (VMDeath, VMDisconnect) so that we terminate
