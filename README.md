@@ -1,5 +1,7 @@
 # JDial Frontend & Backend
 
+What is JDial? Check out our [getting started page](https://github.com/JDial-Debugger/complete/wiki/Getting-Started)
+
 ## Prerequisites
 
 ### Standard use:
