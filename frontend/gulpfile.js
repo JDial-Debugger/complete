@@ -140,7 +140,7 @@ gulp.task('scripts', () => {
       plugins: [
         babel({
           exclude: 'node_modules/**',
-          presets: ['es2015-rollup']
+          //presets: ['es2015-rollup']
         })
       ]
     }))
@@ -169,10 +169,10 @@ gulp.task('scripts-dev', (done) => {
 })
 
 // A combined task for compiling JS and CSS vendor files
-gulp.task('vendors', ['build-vendor-styles', 'build-vendor-scripts'])
+gulp.task('vendors', gulp.series('build-vendor-styles', 'build-vendor-scripts'))
 
 // A combined task for compiling both JS and CSS
-gulp.task('build', ['styles', 'vendors', 'scripts'])
+gulp.task('build', gulp.series('styles', 'vendors', 'scripts'))
 
 /**
  * WATCH TASKS

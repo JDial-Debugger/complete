@@ -7,31 +7,31 @@
     "start": "gulp main"
   },
   "dependencies": {
-    "axios": "^0.19.2",
-    "clipboard": "^1.5.16",
-    "codemirror": "^5.20.2",
-    "diff-match-patch": "^1.0.4",
+    "axios": "^0.20.0",
+    "clipboard": "^2.0.6",
+    "codemirror": "^5.57.0",
+    "diff-match-patch": "^1.0.5",
     "jquery": "^3.5.1",
-    "localforage": "^1.4.3",
-    "mousetrap": "^1.6.0",
-    "primer-css": "^4.4.0",
-    "superagent": "^3.0.0"
+    "localforage": "^1.9.0",
+    "mousetrap": "^1.6.5",
+    "primer-css": "^9.6.0",
+    "superagent": "^6.1.0"
   },
   "devDependencies": {
-    "babel-eslint": "^7.1.1",
-    "babel-preset-es2015-rollup": "^1.2.0",
-    "del": "^2.2.2",
-    "eslint": "^3.10.2",
-    "gulp": "^3.9.1",
-    "gulp-clean-css": "^2.0.13",
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "babel-eslint": "^10.1.0",
+    "del": "^5.1.0",
+    "eslint": "^7.8.1",
+    "gulp": "^4.0.2",
+    "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
-    "gulp-minify": "^0.0.14",
-    "gulp-rename": "^1.2.2",
-    "gulp-rollup": "^2.5.1",
-    "gulp-sass": "^2.3.2",
-    "gulp-standard": "^8.0.2",
-    "node-sass": "^3.13.0",
-    "rollup-plugin-babel": "^2.6.1"
+    "gulp-minify": "^3.1.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-rollup": "^2.17.0",
+    "gulp-sass": "^4.1.0",
+    "gulp-standard": "^14.0.0",
+    "rollup-plugin-babel": "^4.4.0"
   },
   "standard": {
     "parser": "babel-eslint",
@@ -57,7 +57,7 @@
         "jquery": "jquery/dist/jquery.slim.js",
         "localforage": "localforage/dist/localforage.js",
         "mousetrap": "mousetrap/mousetrap.js",
-        "superagent": "superagent/superagent.js",
+        "superagent": "superagent/dist/superagent.js",
         "clipboard": "clipboard/dist/clipboard.min.js",
         "axios": "axios/dist/axios.min.js"
       }
